@@ -414,6 +414,7 @@
   "cmake/SetupPostgresqlDeps.cmake":"taxi/uservices/userver/cmake/SetupPostgresqlDeps.cmake",
   "cmake/SetupProtobuf.cmake":"taxi/uservices/userver/cmake/SetupProtobuf.cmake",
   "cmake/SetupRdKafka.cmake":"taxi/uservices/userver/cmake/SetupRdKafka.cmake",
+  "cmake/SetupRe2.cmake":"taxi/uservices/userver/cmake/SetupRe2.cmake",
   "cmake/SetupRocksDB.cmake":"taxi/uservices/userver/cmake/SetupRocksDB.cmake",
   "cmake/SetupYdbCppSDK.cmake":"taxi/uservices/userver/cmake/SetupYdbCppSDK.cmake",
   "cmake/Stacktrace.cmake":"taxi/uservices/userver/cmake/Stacktrace.cmake",
