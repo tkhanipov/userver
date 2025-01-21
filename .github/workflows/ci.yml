@@ -320,7 +320,7 @@ jobs:
                 cd build_debug
                 mkdir postgresql || :
                 cd postgresql
-                ${{matric.tests-env}} ctest -V
+                ${{matrix.tests-env}} ctest -V
 
           - name: Run tests (redis)
             run: |
