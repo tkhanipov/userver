@@ -716,7 +716,6 @@ void ClusterTopologyHolder::UpdateClusterTopology() {
                 ++current_topology_version_,
                 std::chrono::steady_clock::now(),
                 std::move(shard_infos),
-                password_,
                 redis_thread_pool_,
                 nodes_
             );
