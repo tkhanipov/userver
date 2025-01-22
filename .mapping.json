@@ -3440,6 +3440,8 @@
   "scripts/docker/pip-install.sh":"taxi/uservices/userver/scripts/docker/pip-install.sh",
   "scripts/docker/run_as_user.sh":"taxi/uservices/userver/scripts/docker/run_as_user.sh",
   "scripts/docker/setup-base-ubuntu-22.04-env.sh":"taxi/uservices/userver/scripts/docker/setup-base-ubuntu-22.04-env.sh",
+  "scripts/docker/setup-dev.sh":"taxi/uservices/userver/scripts/docker/setup-dev.sh",
+  "scripts/docker/ubuntu-22.04-pg-dev.dockerfile":"taxi/uservices/userver/scripts/docker/ubuntu-22.04-pg-dev.dockerfile",
   "scripts/docker/ubuntu-22.04-pg.dockerfile":"taxi/uservices/userver/scripts/docker/ubuntu-22.04-pg.dockerfile",
   "scripts/docker/ubuntu-22.04.dockerfile":"taxi/uservices/userver/scripts/docker/ubuntu-22.04.dockerfile",
   "scripts/docs/README.md":"taxi/uservices/userver/scripts/docs/README.md",
