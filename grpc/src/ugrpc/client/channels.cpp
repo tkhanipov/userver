@@ -3,6 +3,7 @@
 #include <grpcpp/create_channel.h>
 
 #include <userver/engine/async.hpp>
+#include <userver/engine/get_all.hpp>
 
 #include <userver/ugrpc/impl/async_method_invocation.hpp>
 #include <userver/ugrpc/impl/deadline_timepoint.hpp>
@@ -34,15 +35,22 @@ DoTryWaitForConnected(grpc::Channel& channel, grpc::CompletionQueue& queue, engi
 }  // namespace
 
 [[nodiscard]] bool TryWaitForConnected(
-    grpc::Channel& channel,
-    grpc::CompletionQueue& queue,
+    ClientData& client_data,
     engine::Deadline deadline,
     engine::TaskProcessor& blocking_task_processor
 ) {
-    return engine::AsyncNoSpan(
-               blocking_task_processor, DoTryWaitForConnected, std::ref(channel), std::ref(queue), deadline
-    )
-        .Get();
+    const auto& channels = client_data.GetChannels();
+    auto& queue = client_data.NextQueue();
+
+    std::vector<engine::TaskWithResult<bool>> tasks{};
+    tasks.reserve(channels.size());
+    for (auto& channel : channels) {
+        tasks.emplace_back(engine::AsyncNoSpan(
+            blocking_task_processor, DoTryWaitForConnected, std::ref(*channel), std::ref(queue), deadline
+        ));
+    }
+    const auto results = engine::GetAll(tasks);
+    return std::all_of(results.begin(), results.end(), [](bool connected) { return connected; });
 }
 
 }  // namespace impl
