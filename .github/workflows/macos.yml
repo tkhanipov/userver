@@ -18,7 +18,7 @@ jobs:
         strategy:
             fail-fast: false
 
-        name: macos-latest (build only)
+        name: macos-latest
         runs-on: macos-latest
 
         env:
