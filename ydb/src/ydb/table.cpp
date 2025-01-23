@@ -394,9 +394,14 @@ std::string TableClient::JoinDbPath(std::string_view path) const { return impl::
 void DumpMetric(utils::statistics::Writer& writer, const TableClient& table_client) {
     writer = *table_client.stats_;
 
-    writer["pool"]["current-size"] = table_client.table_client_->GetCurrentPoolSize();
-    writer["pool"]["active-sessions"] = table_client.table_client_->GetActiveSessionCount();
-    writer["pool"]["max-size"] = table_client.table_client_->GetActiveSessionsLimit();
+    writer["pool"]["current-size"] =
+        std::max(table_client.table_client_->GetCurrentPoolSize(), table_client.query_client_->GetCurrentPoolSize());
+    writer["pool"]["active-sessions"] = std::max(
+        table_client.table_client_->GetActiveSessionCount(), table_client.query_client_->GetActiveSessionCount()
+    );
+    writer["pool"]["max-size"] = std::max(
+        table_client.table_client_->GetActiveSessionsLimit(), table_client.query_client_->GetActiveSessionsLimit()
+    );
 }
 
 PreparedArgsBuilder TableClient::GetBuilder() const { return PreparedArgsBuilder(table_client_->GetParamsBuilder()); }
