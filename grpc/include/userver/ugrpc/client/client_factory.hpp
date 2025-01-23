@@ -6,15 +6,12 @@
 #include <string>
 #include <utility>
 
-#include <grpcpp/completion_queue.h>
-#include <grpcpp/security/credentials.h>
-
 #include <userver/dynamic_config/source.hpp>
 #include <userver/engine/task/task_processor_fwd.hpp>
 #include <userver/testsuite/grpc_control.hpp>
 
 #include <userver/ugrpc/client/client_factory_settings.hpp>
-#include <userver/ugrpc/client/fwd.hpp>
+#include <userver/ugrpc/client/client_settings.hpp>
 #include <userver/ugrpc/client/middlewares/base.hpp>
 
 USERVER_NAMESPACE_BEGIN
@@ -25,39 +22,6 @@ class CompletionQueuePoolBase;
 }  // namespace ugrpc::impl
 
 namespace ugrpc::client {
-
-/// Settings relating to creation of a code-generated client
-struct ClientSettings final {
-    /// **(Required)**
-    /// The name of the client, for diagnostics, credentials and middlewares.
-    std::string client_name;
-
-    /// **(Required)**
-    /// The URI to connect to, e.g. `http://my.domain.com:8080`.
-    /// Should not include any HTTP path, just schema, domain name and port. Unix
-    /// sockets are also supported. For details, see:
-    /// https://grpc.github.io/grpc/cpp/md_doc_naming.html
-    std::string endpoint;
-
-    /// **(Optional)**
-    /// The name of the QOS
-    /// @ref scripts/docs/en/userver/dynamic_config.md "dynamic config"
-    /// that will be applied automatically to every RPC.
-    ///
-    /// Timeout from QOS config is ignored if:
-    ///
-    /// * an explicit `qos` parameter is specified at RPC creation, or
-    /// * deadline is specified in the `client_context` passed at RPC creation.
-    ///
-    /// ## Client QOS config definition sample
-    ///
-    /// @snippet grpc/tests/tests/unit_test_client_qos.hpp  qos config key
-    const dynamic_config::Key<ClientQos>* client_qos{nullptr};
-
-    /// **(Optional)**
-    /// Dedicated high-load methods that have separate channels
-    DedicatedMethodsConfig dedicated_methods_config{};
-};
 
 /// @ingroup userver_clients
 ///
@@ -92,7 +56,7 @@ public:
         ugrpc::impl::CompletionQueuePoolBase& completion_queues,
         ugrpc::impl::StatisticsStorage& statistics_storage,
         testsuite::GrpcControl& testsuite_grpc,
-        dynamic_config::Source source
+        dynamic_config::Source config_source
     );
     /// @endcond
 

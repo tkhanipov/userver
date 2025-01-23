@@ -11,7 +11,7 @@
 #include <userver/testsuite/testsuite_support.hpp>
 #include <userver/ugrpc/client/client_factory_component.hpp>
 #include <userver/ugrpc/client/common_component.hpp>
-#include <userver/ugrpc/client/generic.hpp>
+#include <userver/ugrpc/client/generic_client.hpp>
 #include <userver/ugrpc/client/middlewares/deadline_propagation/component.hpp>
 #include <userver/ugrpc/client/middlewares/log/component.hpp>
 #include <userver/ugrpc/client/simple_client_component.hpp>

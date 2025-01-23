@@ -14,7 +14,7 @@
 #include <userver/utils/fixed_array.hpp>
 #include <userver/utils/statistics/fwd.hpp>
 
-#include <userver/ugrpc/impl/static_metadata.hpp>
+#include <userver/ugrpc/impl/static_service_metadata.hpp>
 #include <userver/ugrpc/impl/statistics_storage.hpp>
 #include <userver/ugrpc/server/impl/completion_queue_pool.hpp>
 #include <userver/ugrpc/server/middlewares/fwd.hpp>
