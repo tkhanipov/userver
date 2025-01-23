@@ -38,7 +38,7 @@ private:
 namespace {
 
 constexpr std::size_t kGroupsSboSize = 5;
-USERVER_IMPL_CONSTINIT std::atomic<bool> implicit_boost_regex_fallback_allowed{true};
+USERVER_IMPL_CONSTINIT std::atomic<bool> implicit_boost_regex_fallback_allowed{false};
 
 re2::RE2::Options MakeRE2Options() {
     re2::RE2::Options options{};
@@ -402,9 +402,7 @@ std::string regex_replace(std::string_view str, const regex& pattern, std::strin
 
 bool IsImplicitBoostRegexFallbackAllowed() noexcept { return true; }
 
-void SetImplicitBoostRegexFallbackAllowed(bool allowed) noexcept {
-    UINVARIANT(allowed, "Cannot stop using boost::regex, because re2 is disabled");
-}
+void SetImplicitBoostRegexFallbackAllowed(bool /*allowed*/) noexcept {}
 
 #endif
 
