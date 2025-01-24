@@ -1,7 +1,6 @@
 #include "logger.hpp"
 
 #include <chrono>
-#include <iostream>
 
 #include <userver/engine/async.hpp>
 #include <userver/formats/parse/common_containers.hpp>
@@ -172,7 +171,7 @@ void Logger::PrependCommonTags(logging::impl::TagWriter writer) const {
 
 bool Logger::DoShouldLog(logging::Level level) const noexcept { return logging::impl::default_::DoShouldLog(level); }
 
-void Logger::Log(logging::Level, logging::impl::formatters::LoggerItemRef item) {
+void Logger::Log(logging::Level level, logging::impl::formatters::LoggerItemRef item) {
     UASSERT(dynamic_cast<Item*>(&item));
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
     auto& log = static_cast<Item&>(item);
@@ -184,10 +183,16 @@ void Logger::Log(logging::Level, logging::impl::formatters::LoggerItemRef item) 
             ++stats_.dropped;
         }
     }
+
+    if (default_logger_ && log.forwarded_formatter) {
+        auto& fwd_item = log.forwarded_formatter->ExtractLoggerItem();
+        default_logger_->Log(level, fwd_item);
+    }
 }
 
 logging::impl::formatters::BasePtr Logger::MakeFormatter(logging::Level level, logging::LogClass log_class) {
-    return std::make_unique<Formatter>(level, log_class, config_.logs_sink, default_logger_, *this);
+    auto sink = log_class == logging::LogClass::kLog ? config_.logs_sink : config_.tracing_sink;
+    return std::make_unique<Formatter>(level, log_class, sink, default_logger_, *this);
 }
 
 void Logger::SetAttributeValue(

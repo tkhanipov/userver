@@ -41,6 +41,11 @@ void MemLogger::DropLogs() {
     pimpl_->data_.clear();
 }
 
+size_t MemLogger::GetPendingLogsCount() {
+    std::unique_lock lock(pimpl_->mutex_);
+    return pimpl_->data_.size();
+}
+
 void MemLogger::Log(Level level, formatters::LoggerItemRef msg) {
     UASSERT(dynamic_cast<formatters::LogItem*>(&msg));
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
