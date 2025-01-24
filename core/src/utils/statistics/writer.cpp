@@ -3,9 +3,9 @@
 #include <algorithm>
 
 #include <fmt/format.h>
-#include <boost/numeric/conversion/cast.hpp>
 
 #include <userver/utils/assert.hpp>
+#include <userver/utils/numeric_cast.hpp>
 #include <userver/utils/text_light.hpp>
 
 #include <utils/statistics/writer_state.hpp>
@@ -136,7 +136,7 @@ Writer Writer::MakeChild() {
 void Writer::Write(unsigned long long value) {
     if (state_) {
         ValidateUsage();
-        CheckAndWrite(*state_, MetricValue{boost::numeric_cast<std::int64_t>(value)});
+        CheckAndWrite(*state_, MetricValue{utils::numeric_cast<std::int64_t>(value)});
     }
 }
 
