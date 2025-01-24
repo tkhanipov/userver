@@ -43,24 +43,18 @@ if (USERVER_IMPL_FEATURE_JEMALLOC AND
   endif()
 endif()
 
-if(USERVER_IMPL_FEATURE_RE2)
-  if(USERVER_CONAN)
-    find_package(re2 REQUIRED CONFIG)
-  else()
-    find_package(re2 REQUIRED)
-  endif()
-endif()
-
 if (USERVER_CONAN)
   find_package(cryptopp REQUIRED CONFIG)
   find_package(yaml-cpp REQUIRED CONFIG)
   find_package(zstd REQUIRED CONFIG)
+  find_package(re2 REQUIRED CONFIG)
 
   find_package(RapidJSON REQUIRED CONFIG)
 else()
   find_package(CryptoPP REQUIRED)
   find_package(libyamlcpp REQUIRED)
   find_package(libzstd REQUIRED)
+  find_package(re2 REQUIRED)
 endif()
 
 include("${USERVER_CMAKE_DIR}/AddGoogleTests.cmake")

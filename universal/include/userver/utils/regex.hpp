@@ -24,11 +24,19 @@ class RegexError : public std::exception {};
 /// @brief A drop-in replacement for `std::regex` without huge includes
 /// and with better performance characteristics.
 ///
-/// Is currently implemented using either Boost.Regex or re2, depending on `USERVER_FEATURE_RE2` flag.
+/// utils::regex is currently implemented using re2.
 ///
 /// @see @ref utils::regex_match
 /// @see @ref utils::regex_search
 /// @see @ref utils::regex_replace
+///
+/// Read [re2 documentation](https://github.com/google/re2/wiki/syntax) on the limitations of re2 engine.
+/// Notably, it does not support:
+///
+/// 1. lookahead and lookbehind;
+/// 2. quantifiers over 1000, regexes with large repetition counts consume more memory;
+/// 3. spaces in quantifiers like `\w{1, 5}`;
+/// 4. possessive quantifiers.
 class regex final {
 public:
     /// Constructs a null regex, any usage except for copy/move is UB.
@@ -158,13 +166,9 @@ struct Re2Replacement final {
     std::string_view replacement;
 };
 
-#if !defined(USERVER_NO_RE2_SUPPORT) || defined(DOXYGEN)
-
 /// @overload
 /// @see utils::Re2Replacement
 std::string regex_replace(std::string_view str, const regex& pattern, Re2Replacement repl);
-
-#endif
 
 /// @cond
 bool IsImplicitBoostRegexFallbackAllowed() noexcept;

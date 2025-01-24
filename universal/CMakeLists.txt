@@ -190,17 +190,12 @@ if(NOT USERVER_CONAN)
   endif()
 endif()
 
-option(USERVER_FEATURE_RE2 "Build userver with re2 support" ON)
-if(USERVER_FEATURE_RE2)
-  if(USERVER_CONAN)
-    find_package(re2 REQUIRED CONFIG)
-  else()
-    include(SetupRe2)
-  endif()
-  target_link_libraries(${PROJECT_NAME} PRIVATE re2::re2)
+if(USERVER_CONAN)
+  find_package(re2 REQUIRED CONFIG)
 else()
-  target_compile_definitions(${PROJECT_NAME} PUBLIC USERVER_NO_RE2_SUPPORT=1)
+  include(SetupRe2)
 endif()
+target_link_libraries(${PROJECT_NAME} PRIVATE re2::re2)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
   CRYPTOPP_ENABLE_NAMESPACE_WEAK=1

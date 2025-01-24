@@ -8,12 +8,9 @@
 #include <variant>
 
 #include <fmt/format.h>
+#include <re2/re2.h>
 #include <boost/container/small_vector.hpp>
 #include <boost/regex.hpp>
-
-#ifndef USERVER_NO_RE2_SUPPORT
-#include <re2/re2.h>
-#endif
 
 #include <userver/compiler/impl/constexpr.hpp>
 #include <userver/utils/assert.hpp>
@@ -32,8 +29,6 @@ public:
 private:
     std::string message_;
 };
-
-#ifndef USERVER_NO_RE2_SUPPORT
 
 namespace {
 
@@ -311,100 +306,6 @@ std::string regex_replace(std::string_view str, const regex& pattern, Re2Replace
 bool IsImplicitBoostRegexFallbackAllowed() noexcept { return implicit_boost_regex_fallback_allowed.load(); }
 
 void SetImplicitBoostRegexFallbackAllowed(bool allowed) noexcept { implicit_boost_regex_fallback_allowed = allowed; }
-
-#else
-
-struct regex::Impl {
-    boost::regex r;
-
-    Impl() = default;
-
-    explicit Impl(std::string_view pattern) try : r(pattern.begin(), pattern.end()) {
-    } catch (const boost::regex_error& ex) {
-        throw RegexErrorImpl(ex.what());
-    }
-};
-
-regex::regex() = default;
-
-regex::regex(std::string_view pattern) : impl_(regex::Impl(pattern)) {}
-
-regex::~regex() = default;
-
-regex::regex(const regex&) = default;
-
-regex::regex(regex&& r) noexcept { impl_->r.swap(r.impl_->r); }
-
-regex& regex::operator=(const regex&) = default;
-
-regex& regex::operator=(regex&& r) noexcept {
-    impl_->r.swap(r.impl_->r);
-    return *this;
-}
-
-bool regex::operator==(const regex& other) const { return impl_->r == other.impl_->r; }
-
-std::string_view regex::GetPatternView() const { return std::string_view{impl_->r.expression(), impl_->r.size()}; }
-
-std::string regex::str() const { return std::string{GetPatternView()}; }
-
-////////////////////////////////////////////////////////////////
-
-struct match_results::Impl {
-    boost::cmatch m;
-
-    Impl() = default;
-};
-
-match_results::match_results() = default;
-
-match_results::~match_results() = default;
-
-match_results::match_results(const match_results&) = default;
-
-match_results& match_results::operator=(const match_results&) = default;
-
-std::size_t match_results::size() const { return impl_->m.size(); }
-
-std::string_view match_results::operator[](std::size_t sub) const {
-    auto substr = impl_->m[sub];
-    return {&*substr.begin(), static_cast<std::size_t>(substr.length())};
-}
-
-////////////////////////////////////////////////////////////////
-
-bool regex_match(std::string_view str, const regex& pattern) {
-    return boost::regex_match(str.begin(), str.end(), pattern.impl_->r);
-}
-
-bool regex_match(std::string_view str, match_results& m, const regex& pattern) {
-    return boost::regex_match(str.begin(), str.end(), m.impl_->m, pattern.impl_->r);
-}
-
-bool regex_search(std::string_view str, const regex& pattern) {
-    return boost::regex_search(str.begin(), str.end(), pattern.impl_->r);
-}
-
-bool regex_search(std::string_view str, match_results& m, const regex& pattern) {
-    return boost::regex_search(str.begin(), str.end(), m.impl_->m, pattern.impl_->r);
-}
-
-std::string regex_replace(std::string_view str, const regex& pattern, std::string_view repl) {
-    std::string res;
-    res.reserve(str.size() + str.size() / 4);
-
-    boost::regex_replace(
-        std::back_inserter(res), str.begin(), str.end(), pattern.impl_->r, repl, boost::regex_constants::format_literal
-    );
-
-    return res;
-}
-
-bool IsImplicitBoostRegexFallbackAllowed() noexcept { return true; }
-
-void SetImplicitBoostRegexFallbackAllowed(bool /*allowed*/) noexcept {}
-
-#endif
 
 }  // namespace utils
 

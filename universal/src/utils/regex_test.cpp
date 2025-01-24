@@ -14,12 +14,6 @@ auto AllowBoostRegexScope(bool allow) {
     return utils::FastScopeGuard([old]() noexcept { utils::SetImplicitBoostRegexFallbackAllowed(old); });
 }
 
-#ifndef USERVER_NO_RE2_SUPPORT
-constexpr bool kHasRe2Support = true;
-#else
-constexpr bool kHasRe2Support = false;
-#endif
-
 }  // namespace
 
 TEST(Regex, Ctors) {
@@ -36,10 +30,6 @@ TEST(Regex, Ctors) {
 TEST(Regex, InvalidRegex) { UEXPECT_THROW(utils::regex("regex***"), utils::RegexError); }
 
 TEST(Regex, NegativeLookaheadDisallowed) {
-    if constexpr (!kHasRe2Support) {
-        GTEST_SKIP() << "No re2 support";
-    }
-
     const auto allowed = AllowBoostRegexScope(false);
     UEXPECT_THROW_MSG(
         utils::regex{"(?!bad)([a-z]+)(\\d*)"},
@@ -91,10 +81,6 @@ TEST(Regex, MatchNegativeLookahead) {
 }
 
 TEST(Regex, MatchNewlines) {
-    if constexpr (!kHasRe2Support) {
-        GTEST_SKIP() << "No re2 support";
-    }
-
     // $ matches the end of the whole string as a safe default.
     const utils::regex r1(R"(^(1\n2\n3)(\n)?$)");
     EXPECT_TRUE(utils::regex_search("1\n2\n3\n", r1));
@@ -177,10 +163,6 @@ TEST(Regex, SearchEmptyCaptureGroupsGoldenTest) {
 }
 
 TEST(Regex, SearchNonPresentCaptureGroupsGoldenTest) {
-    if constexpr (!kHasRe2Support) {
-        GTEST_SKIP() << "No re2 support";
-    }
-
     // 2nd capture group cannot be present in `r` in any way (otherwise nested <> would have to be present),
     // so utils::regex must return an invalid std::string_view for the 2nd group.
     // The current implementation returns `nullptr` std::string_view, but the exact value of `.data()`
@@ -218,8 +200,6 @@ TEST(Regex, ReplaceEmpty) {
     EXPECT_EQ(utils::regex_replace("ab123cd", r, "*"), "*a*b**c*d*");
 }
 
-#ifndef USERVER_NO_RE2_SUPPORT
-
 TEST(Regex, ReplaceRe2) {
     const utils::regex r("[a-z]{2}");
     EXPECT_EQ(utils::regex_replace("ab0ef1", r, utils::Re2Replacement{"{\\0}"}), "{ab}0{ef}1");
@@ -227,7 +207,5 @@ TEST(Regex, ReplaceRe2) {
     const utils::regex group_regex("([a-z]+)(\\d+)");
     EXPECT_EQ(utils::regex_replace("ab0ef1", group_regex, utils::Re2Replacement{"(\\2-\\1)"}), "(0-ab)(1-ef)");
 }
-
-#endif
 
 USERVER_NAMESPACE_END
