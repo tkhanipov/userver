@@ -6,6 +6,7 @@
 #include <tracing/no_log_spans.hpp>
 #include <userver/engine/sleep.hpp>
 #include <userver/formats/json/serialize.hpp>
+#include <userver/tracing/opentelemetry.hpp>
 #include <userver/tracing/span.hpp>
 #include <userver/tracing/tracer.hpp>
 #include <userver/utest/utest.hpp>
@@ -351,6 +352,17 @@ UTEST_F(Span, LowerLocalLogLevel) {
     EXPECT_THAT(GetStreamString(), HasSubstr("logged_span"));
 }
 
+UTEST_F(Span, LocalLogLevelLowerThanGlobal) {
+    tracing::Span span("parent_span");
+    // This currently cannot overcome global log level, which is "info" for this test.
+    span.SetLocalLogLevel(logging::Level::kDebug);
+
+    LOG_DEBUG() << "message";
+    logging::LogFlush();
+
+    EXPECT_THAT(GetStreamString(), Not(HasSubstr("message")));
+}
+
 UTEST_F(Span, ConstructFromTracer) {
     auto tracer = tracing::MakeTracer("test_service", {});
 
@@ -687,6 +699,25 @@ UTEST_F(Span, MakeSpanWithParentIdTraceIdLinkWithExisting) {
         EXPECT_EQ(span.GetParentId(), parent_id);
         EXPECT_EQ(span.GetLink(), link);
     }
+}
+
+UTEST_F(Span, IsCompatibleWithOpentelemetry) {
+    auto span = tracing::Span::MakeRootSpan("span-name");
+    EXPECT_NE(span.GetTraceId(), "");
+    EXPECT_NE(span.GetSpanId(), "");
+
+    static constexpr std::string_view kFlags = "01";
+
+    const auto otel_header =
+        tracing::opentelemetry::BuildTraceParentHeader(span.GetTraceId(), span.GetSpanId(), kFlags);
+    ASSERT_TRUE(otel_header.has_value()) << otel_header.error();
+
+    const auto otel_data = tracing::opentelemetry::ExtractTraceParentData(otel_header.value());
+    ASSERT_TRUE(otel_data.has_value()) << otel_data.error();
+
+    EXPECT_EQ(otel_data.value().trace_id, span.GetTraceId());
+    EXPECT_EQ(otel_data.value().span_id, span.GetSpanId());
+    EXPECT_EQ(otel_data.value().trace_flags, kFlags);
 }
 
 USERVER_NAMESPACE_END
