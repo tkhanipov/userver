@@ -222,7 +222,7 @@ struct EntryStorage final {
         logger,                                                                 \
         level,                                                                  \
         [](const auto& location) -> const USERVER_NAMESPACE::logging::Module& { \
-            static USERVER_NAMESPACE::logging::Module module(location);         \
+            static const USERVER_NAMESPACE::logging::Module module(location);   \
             return module;                                                      \
         }(USERVER_NAMESPACE::utils::impl::SourceLocation::Current()),           \
         USERVER_NAMESPACE::logging::LogClass::kLog                              \
