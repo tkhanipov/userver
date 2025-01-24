@@ -15,6 +15,7 @@
 #include <logging/rate_limit.hpp>
 #include <userver/decimal64/decimal64.hpp>
 #include <userver/formats/json/serialize.hpp>
+#include <userver/logging/impl/mem_logger.hpp>
 #include <userver/logging/null_logger.hpp>
 #include <userver/utils/regex.hpp>
 #include <userver/utils/traceful_exception.hpp>
@@ -91,6 +92,17 @@ TEST_F(LoggingTest, LogFormat) {
 
     EXPECT_THAT(GetStreamString(), testing::Not(testing::HasSubstr(" ( /")))
         << "Path shortening for logs stopped working.";
+}
+
+TEST_F(LoggingTest, MemLoggerLogFormat) {
+    logging::impl::MemLogger mem_logger;
+    mem_logger.ForwardTo(&*GetStreamLogger());
+    LOG_CRITICAL_TO(mem_logger) << "test" << logging::LogExtra{{"foo", "bar"}};
+    logging::LogFlush();
+
+    const auto str = GetStreamString();
+    constexpr std::string_view kTimestamp = "timestamp=";
+    EXPECT_EQ(str.find(kTimestamp), str.rfind(kTimestamp)) << str;
 }
 
 TEST_F(LoggingTest, FloatingPoint) {

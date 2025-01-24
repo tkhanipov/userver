@@ -14,12 +14,6 @@ namespace logging::impl::formatters {
 Struct::Struct(Level level, LogClass log_class) {
     item_.level = level;
     item_.log_class = log_class;
-
-    const auto now = std::chrono::system_clock::now();
-    item_.tags.emplace_back(
-        "timestamp",
-        fmt::format(FMT_COMPILE("{}.{:06}"), GetCurrentTimeString(now).ToStringView(), FractionalMicroseconds(now))
-    );
 }
 
 void Struct::AddTag(std::string_view key, const LogExtra::Value& value) { item_.tags.emplace_back(key, value); }
