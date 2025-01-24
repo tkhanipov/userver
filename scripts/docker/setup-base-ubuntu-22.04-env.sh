@@ -130,19 +130,16 @@ rm -rf postgresql-server-dev-14* tmp_postgresql
 apt clean all
 
 # You could override those versions from command line
-AMQP_VERSION=${AMQP_VERSION:=v4.3.18}
-CLICKHOUSE_VERSION=${CLICKHOUSE_VERSION:=v2.3.0}
-ROCKSDB_VERSION=${ROCKSDB_VERSION:=v8.9.1}
+export AMQP_VERSION=${AMQP_VERSION:=v4.3.18}
+export CLICKHOUSE_VERSION=${CLICKHOUSE_VERSION:=v2.5.1}
+export ROCKSDB_VERSION=${ROCKSDB_VERSION:=v8.9.1}
+export POSTGRESQL_VERSION=${POSTGRESQL_VERSION:=14}
 
 # Installing amqp/rabbitmq client libraries from sources
-git clone --depth 1 -b ${AMQP_VERSION} https://github.com/CopernicaMarketingSoftware/AMQP-CPP.git amqp-cpp
-(cd amqp-cpp && mkdir build && cd build && \
-  cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release .. && make -j $(nproc) && make install)
+./ubuntu_install_rabbitmq_dev.sh
 
 # Installing Clickhouse C++ client libraries from sources
-git clone --depth 1 -b ${CLICKHOUSE_VERSION} https://github.com/ClickHouse/clickhouse-cpp.git
-(cd clickhouse-cpp && mkdir build && cd build && \
-  cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release .. && make -j $(nproc) && make install)
+./ubuntu-install-clickhouse.sh
 
 # Installing RocksDB client libraries from sources
 git clone --depth 1 -b ${ROCKSDB_VERSION} https://github.com/facebook/rocksdb
