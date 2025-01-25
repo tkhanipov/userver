@@ -19,7 +19,6 @@ namespace ugrpc::server::impl {
 namespace {
 
 constexpr std::string_view kTaskProcessorKey = "task-processor";
-constexpr std::string_view kMiddlewaresKey = "middlewares";
 
 template <typename ParserFunc>
 auto ParseOptional(
@@ -35,7 +34,7 @@ auto ParseOptional(
 }
 
 template <typename Field, typename ParserFunc>
-Field MergeField(
+Field GetFieldOrDefault(
     const yaml_config::YamlConfig& service_field,
     const boost::optional<Field>& server_default,
     const components::ComponentContext& context,
@@ -53,27 +52,12 @@ ParseTaskProcessor(const yaml_config::YamlConfig& field, const components::Compo
     return context.GetTaskProcessor(field.As<std::string>());
 }
 
-std::vector<std::string>
-ParseMiddlewares(const yaml_config::YamlConfig& field, const components::ComponentContext& /*context*/) {
-    return field.As<std::vector<std::string>>();
-}
-
-Middlewares FindMiddlewares(const std::vector<std::string>& names, const components::ComponentContext& context) {
-    return utils::AsContainer<Middlewares>(
-        names | boost::adaptors::transformed([&](const std::string& name) {
-            return context.FindComponent<MiddlewareComponentBase>(name).GetMiddleware();
-        })
-    );
-}
-
 }  // namespace
 
 ServiceDefaults
 ParseServiceDefaults(const yaml_config::YamlConfig& value, const components::ComponentContext& context) {
     return ServiceDefaults{
         /*task_processor=*/ParseOptional(value[kTaskProcessorKey], context, ParseTaskProcessor),
-        /*middleware_names=*/
-        ParseOptional(value[kMiddlewaresKey], context, ParseMiddlewares),
     };
 }
 
@@ -83,11 +67,10 @@ server::ServiceConfig ParseServiceConfig(
     const ServiceDefaults& defaults
 ) {
     return server::ServiceConfig{
-        /*task_processor=*/MergeField(value[kTaskProcessorKey], defaults.task_processor, context, ParseTaskProcessor),
-        /*middlewares=*/
-        FindMiddlewares(
-            MergeField(value[kMiddlewaresKey], defaults.middleware_names, context, ParseMiddlewares), context
+        /*task_processor=*/GetFieldOrDefault(
+            value[kTaskProcessorKey], defaults.task_processor, context, ParseTaskProcessor
         ),
+        /*middlewares=*/{},
     };
 }
 
