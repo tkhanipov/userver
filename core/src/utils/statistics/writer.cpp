@@ -201,7 +201,8 @@ void Writer::ResetState() noexcept {
             kFixitHint
         )
     );
-    state_->add_labels.resize(initial_labels_size_);
+    auto& labels = state_->add_labels;
+    labels.erase(labels.begin() + initial_labels_size_, labels.end());
 
     state_ = nullptr;
 }
