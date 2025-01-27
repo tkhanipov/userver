@@ -3,10 +3,7 @@
 /// @file userver/ugrpc/client/channels.hpp
 /// @brief Utilities for managing gRPC connections
 
-#include <algorithm>
-
 #include <grpcpp/channel.h>
-#include <grpcpp/completion_queue.h>
 #include <grpcpp/security/credentials.h>
 
 #include <userver/engine/deadline.hpp>

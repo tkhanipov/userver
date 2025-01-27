@@ -1,5 +1,7 @@
 #include <userver/ugrpc/client/channels.hpp>
 
+#include <algorithm>
+
 #include <grpcpp/create_channel.h>
 
 #include <userver/engine/async.hpp>
