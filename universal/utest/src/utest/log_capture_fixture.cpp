@@ -144,7 +144,7 @@ LogRecord GetSingleLog(utils::span<const LogRecord> log, const utils::impl::Sour
         }
         throw NotSingleLogError(msg);
     }
-    auto single_record = std::move(log[0]);
+    auto single_record = log[0];
     return single_record;
 }
 

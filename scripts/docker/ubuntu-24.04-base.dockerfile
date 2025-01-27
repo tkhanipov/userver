@@ -1,5 +1,14 @@
 FROM ubuntu:24.04
 
+# Build as:
+#
+#   docker build -f scripts/docker/ubuntu-24.04-base.dockerfile
+#
+# The Dockerfile setups:
+#  * all userver build dependencies
+#  * all userver test dependencies (e.g. for testsuite)
+# It does not contain userver itself.
+
 COPY scripts/docs/en/deps/ubuntu-24.04.md /userver_tmp/
 COPY scripts/postgres/ubuntu-install-postgresql-includes.sh /userver_tmp/
 
