@@ -152,8 +152,13 @@ endif()
 option(USERVER_USE_STATIC_LIBS "Tries to find all dependencies as static libraries" "${USERVER_USE_STATIC_LIBS_DEFAULT}")
 
 if(USERVER_USE_STATIC_LIBS)
+  if(USERVER_USE_STATIC_LIBS_DEFAULT)
+    set(_use_static_log_level STATUS)
+  else()
+    set(_use_static_log_level WARNING)
+  endif()
   message(
-    WARNING
+    ${_use_static_log_level}
     "USERVER_USE_STATIC_LIBS turned ON, prioritized to find static libraries. Not all dependencies may be taken into account and linkage may be broken")
 endif()
 include(UserverPreferStaticLibs)
