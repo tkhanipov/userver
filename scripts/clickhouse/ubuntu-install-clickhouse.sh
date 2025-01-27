@@ -3,7 +3,7 @@
 # Exit on any error and treat unset variables as errors, print all commands
 set -euox pipefail
 
-CLICKHOUSE_VERSION=${CLICKHOUSE_VERSION:=v2.5.1}
+CLICKHOUSE_VERSION=${CLICKHOUSE_VERSION:=v2.3.0}
 
 # Installing Clickhouse C++ client libraries from sources
 git clone --depth 1 -b ${CLICKHOUSE_VERSION} https://github.com/ClickHouse/clickhouse-cpp.git
