@@ -39,7 +39,7 @@ Make sure to:
 
 The details vary depending on the method of building userver:
 
-* `add_subdirectory(userver)` as used in @ref service_templates "service templates"
+* `find_package` + CPM + CMake Presets as used in @ref service_templates "service templates"
 * @ref userver_install "userver install"
 * @ref userver_cpm "CPM"
 * @ref userver_conan "Conan"
@@ -54,6 +54,11 @@ For example, to use `clang-12` compiler, install it and add the following option
 ```shell
 cmake ... -DCMAKE_C_COMPILER=clang-12 -DCMAKE_CXX_COMPILER=clang++-12
 ```
+
+The exact format of setting cmake options varies depending on the method of building userver:
+
+* `find_package` + CPM + CMake Presets as used in @ref service_templates "service templates"
+* @ref userver_install "userver install"
 
 ### CMake options for selecting userver libraries to build
 

@@ -363,3 +363,10 @@ These are the metrics provided for each gRPC method:
 @htmlonly <div class="bottom-nav"> @endhtmlonly
 ⇦ @ref scripts/docs/en/userver/profile_context_switches.md | @ref scripts/docs/en/userver/grpc_server_middlewares.md ⇨
 @htmlonly </div> @endhtmlonly
+
+@example grpc-generic-proxy/src/proxy_service.hpp
+@example grpc-generic-proxy/src/proxy_service.cpp
+@example grpc-generic-proxy/main.cpp
+@example grpc-generic-proxy/static_config.yaml
+@example grpc-generic-proxy/config_vars.yaml
+@example grpc-generic-proxy/CMakeLists.txt
