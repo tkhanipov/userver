@@ -39,13 +39,6 @@ Command::Command(
     }
 }
 
-ReplyCallback Command::Callback() const {
-    auto self = shared_from_this();
-    return [self](const CommandPtr& cmd, ReplyPtr reply) {
-        if (self->callback) self->callback(cmd, std::move(reply));
-    };
-}
-
 logging::LogExtra Command::PrepareLogExtra() {
     const auto* span = tracing::Span::CurrentSpanUnchecked();
     if (span) {

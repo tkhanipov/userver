@@ -13,7 +13,7 @@ struct Command;
 using CommandPtr = std::shared_ptr<Command>;
 using ReplyCallback = std::function<void(const CommandPtr& cmd, ReplyPtr reply)>;
 
-struct Command : public std::enable_shared_from_this<Command> {
+struct Command {
     Command(
         CmdArgs&& _args,
         ReplyCallback callback,
@@ -26,8 +26,6 @@ struct Command : public std::enable_shared_from_this<Command> {
     );
 
     const std::string& GetName() const { return name; }
-
-    ReplyCallback Callback() const;
 
     void ResetStartHandlingTime() { start_handling_time = std::chrono::steady_clock::now(); }
 

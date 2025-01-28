@@ -318,7 +318,9 @@ void SentinelImpl::AsyncCommand(const SentinelCommand& scommand, size_t prev_ins
 
                     auto new_command = PrepareCommand(
                         std::move(ccommand->args),
-                        command->Callback(),
+                        [command](const CommandPtr& cmd, ReplyPtr reply) {
+                            if (command->callback) command->callback(cmd, std::move(reply));
+                        },
                         command->control,
                         command->counter + 1,
                         command->asking || error_ask,

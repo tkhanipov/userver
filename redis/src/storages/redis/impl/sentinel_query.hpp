@@ -119,7 +119,7 @@ struct MasterSlavesConnInfos {
 
 using ClusterSlotsResponse = std::map<SlotInterval, MasterSlavesConnInfos>;
 
-class GetClusterHostsContext : public std::enable_shared_from_this<GetClusterHostsContext> {
+class GetClusterHostsContext {
 public:
     GetClusterHostsContext(
         Password password,
@@ -128,11 +128,14 @@ public:
         size_t expected_responses_cnt
     );
 
-    std::function<void(const CommandPtr&, const ReplyPtr& reply)> GenerateCallback();
+private:
+    friend void ProcessGetClusterHostsRequest(
+        std::shared_ptr<const std::vector<std::string>> shard_names,
+        GetClusterHostsRequest request,
+        ProcessGetClusterHostsRequestCb callback
+    );
 
     void OnAsyncCommandFailed();
-
-private:
     void OnResponse(const CommandPtr&, const ReplyPtr& reply);
     void ProcessResponses();
     void ProcessResponsesOnce();
