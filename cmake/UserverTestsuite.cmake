@@ -241,6 +241,7 @@ function(userver_testsuite_add)
       "--output=${TESTSUITE_RUNNER}"
       "--python=${python_binary}"
       "--tests-path=${ARG_WORKING_DIRECTORY}"
+      "--working-dir=${CMAKE_CURRENT_BINARY_DIR}"
       "--python-path=${ARG_PYTHONPATH}"
       --
       "--build-dir=${CMAKE_CURRENT_BINARY_DIR}"
