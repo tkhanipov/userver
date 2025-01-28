@@ -24,6 +24,7 @@ components_manager:
 
         grpc-health:
             task-processor: main-task-processor
+            disable-all-pipeline-middlewares: true
 
     default_task_processor: main-task-processor
 

@@ -16,7 +16,6 @@
 #include <userver/ugrpc/client/middlewares/log/component.hpp>
 #include <userver/ugrpc/client/simple_client_component.hpp>
 #include <userver/ugrpc/server/component_list.hpp>
-#include <userver/ugrpc/server/server_component.hpp>
 #include <userver/utils/daemon_run.hpp>
 
 #include <proxy_service.hpp>
@@ -25,6 +24,7 @@ int main(int argc, char* argv[]) {
     const auto component_list =
         components::MinimalServerComponentList()
             // Base userver components
+            .Append<congestion_control::Component>()
             .Append<components::TestsuiteSupport>()
             // HTTP client and server are (sadly) needed for testsuite support
             .Append<components::HttpClient>()
@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
             .Append<ugrpc::client::middlewares::log::Component>()
             .Append<ugrpc::client::SimpleClientComponent<ugrpc::client::GenericClient>>("generic-client")
             // gRPC server setup
-            .AppendComponentList(ugrpc::server::DefaultComponentList())
+            .AppendComponentList(ugrpc::server::MinimalComponentList())
             .Append<samples::ProxyService>();
 
     return utils::DaemonMain(argc, argv, component_list);

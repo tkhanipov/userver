@@ -9,6 +9,7 @@
 #include <userver/clients/http/plugins/headers_propagator/component.hpp>
 #include <userver/components/component.hpp>
 #include <userver/components/minimal_server_component_list.hpp>
+#include <userver/congestion_control/component.hpp>
 #include <userver/server/middlewares/headers_propagator.hpp>
 #include <userver/testsuite/testsuite_support.hpp>
 #include <userver/utils/daemon_run.hpp>
@@ -77,6 +78,7 @@ yaml_config::Schema GreeterServiceComponent::GetStaticConfigSchema() {
 
 int main(int argc, char* argv[]) {
     const auto component_list = components::MinimalServerComponentList()
+                                    .Append<congestion_control::Component>()
                                     .Append<components::TestsuiteSupport>()
                                     .AppendComponentList(ugrpc::server::DefaultComponentList())
                                     .Append<ugrpc::client::CommonComponent>()

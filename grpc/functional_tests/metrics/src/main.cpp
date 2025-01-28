@@ -1,6 +1,7 @@
 #include <fmt/format.h>
 
 #include <userver/components/minimal_server_component_list.hpp>
+#include <userver/congestion_control/component.hpp>
 #include <userver/server/handlers/server_monitor.hpp>
 #include <userver/testsuite/testsuite_support.hpp>
 #include <userver/utest/using_namespace_userver.hpp>
@@ -19,6 +20,7 @@
 int main(int argc, const char* const argv[]) {
     const auto component_list = components::MinimalServerComponentList()
                                     .Append<server::handlers::ServerMonitor>()
+                                    .Append<congestion_control::Component>()
                                     .AppendComponentList(ugrpc::server::DefaultComponentList())
                                     .Append<components::TestsuiteSupport>()
                                     .Append<ugrpc::client::middlewares::baggage::Component>()

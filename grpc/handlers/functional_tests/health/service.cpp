@@ -9,6 +9,7 @@
 #include <userver/components/component.hpp>
 #include <userver/components/component_base.hpp>
 #include <userver/components/minimal_server_component_list.hpp>
+#include <userver/congestion_control/component.hpp>
 #include <userver/engine/async.hpp>
 #include <userver/engine/sleep.hpp>
 #include <userver/utils/daemon_run.hpp>
@@ -20,7 +21,8 @@
 
 int main(int argc, char* argv[]) {
     const auto component_list = components::MinimalServerComponentList()
-                                    .AppendComponentList(ugrpc::server::DefaultComponentList())
+                                    .AppendComponentList(ugrpc::server::MinimalComponentList())
+                                    .Append<congestion_control::Component>()
                                     .Append<ugrpc::server::HealthComponent>();
     return utils::DaemonMain(argc, argv, component_list);
 }

@@ -2256,7 +2256,7 @@
   "libraries/grpc-reflection/__module_deps__.yaml":"taxi/uservices/userver/libraries/grpc-reflection/__module_deps__.yaml",
   "libraries/grpc-reflection/functional_tests/CMakeLists.txt":"taxi/uservices/userver/libraries/grpc-reflection/functional_tests/CMakeLists.txt",
   "libraries/grpc-reflection/functional_tests/golden_path/CMakeLists.txt":"taxi/uservices/userver/libraries/grpc-reflection/functional_tests/golden_path/CMakeLists.txt",
-  "libraries/grpc-reflection/functional_tests/golden_path/grpc_reflection_service.cpp":"taxi/uservices/userver/libraries/grpc-reflection/functional_tests/golden_path/grpc_reflection_service.cpp",
+  "libraries/grpc-reflection/functional_tests/golden_path/main.cpp":"taxi/uservices/userver/libraries/grpc-reflection/functional_tests/golden_path/main.cpp",
   "libraries/grpc-reflection/functional_tests/golden_path/static_config.yaml":"taxi/uservices/userver/libraries/grpc-reflection/functional_tests/golden_path/static_config.yaml",
   "libraries/grpc-reflection/functional_tests/golden_path/tests/conftest.py":"taxi/uservices/userver/libraries/grpc-reflection/functional_tests/golden_path/tests/conftest.py",
   "libraries/grpc-reflection/functional_tests/golden_path/tests/test_grpc_reflection.py":"taxi/uservices/userver/libraries/grpc-reflection/functional_tests/golden_path/tests/test_grpc_reflection.py",
