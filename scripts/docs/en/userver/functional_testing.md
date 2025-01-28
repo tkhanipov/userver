@@ -119,20 +119,20 @@ that could be found in corresponding binary directory.
 This may be useful to run a single testcase, to start the testsuite with gdb or to
 start the testsuite with extra pytest arguments:
 
-`${CMAKE_CURRENT_BINARY_DIR}/runtests-testsuite-${SERVICE_TARGET}`
+`${CMAKE_CURRENT_BINARY_DIR}/runtests-${SERVICE_TARGET}`
 
 You can use it to manually start testsuite with extra `pytest` arguments, e.g.:
 
 
 ```shell
-./build/tests/runtests-testsuite-my-project -vvx ./tests -k test_foo
+./build-debug/runtests-service_template -vvx -k test_foo
 ```
 
 Please refer to `testuite` and `pytest` documentation for available options.
 Run it with `--help` argument to see the short options description.
 
 ```shell
-./build/tests/runtests-testsuite-my-project ./tests --help
+./build-debug/runtests-service_template --help
 ```
 
 ### Debug
@@ -141,7 +141,7 @@ To debug the functional test you can start testsuite with extra `pytest` argumen
 
 
 ```shell
-./build/tests/runtests-testsuite-my-project --service-wait ./tests -k test_foo
+./build-debug/runtests-service_template --service-wait -k test_foo
 ```
 
 At the beginning of the execution the console will display the command to start the service, e.g.:
@@ -151,7 +151,7 @@ At the beginning of the execution the console will display the command to start 
 gdb --args /.../my-project/build/functional-tests --config /.../config.yaml
 ```
 
-Now you can open a new terminal window and run this command in it or if
+Now you can open a new terminal window and run this command in it, or if
 you use an IDE you can find the corresponding CMake target and add arg `--config /.../config.yaml`.
 After that it will be possible to set breakpoints and start target with debug.
 
@@ -469,14 +469,13 @@ Testsuite provides a way to start standalone service with all mocks and database
 This can be done by adding `--service-runner-mode` flag to pytest, e.g.:
 
 ```shell
-./build/tests/runtests-my-project ./tests -s --service-runner-mode
+./build-debug/runtests-service_template -s --service-runner-mode
 ```
 
 Please note that `-s` flag is required to disable console output capture.
 
 `pytest_userver` provides default service runner testcase.
 In order to override it you have to add your own testcase with `@pytest.mark.servicetest`:
-
 
 @code{.py}
 @pytest.mark.servicetest
