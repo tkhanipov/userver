@@ -1,7 +1,7 @@
 #include <userver/utest/assert_macros.hpp>
 
 #include <fmt/format.h>
-#include <re2/re2.h>
+#include <gmock/gmock.h>
 
 #include <userver/compiler/demangle.hpp>
 #include <userver/logging/stacktrace_cache.hpp>
@@ -138,8 +138,8 @@ std::string AssertNoThrow(std::function<void()> statement, std::string_view stat
     }
 }
 
-std::string QuoteStringForRegex(std::string_view message) {
-    return re2::RE2::QuoteMeta(re2::StringPiece{message.data(), message.size()});
+testing::Matcher<const ::std::string&> MakeHasSubstrMatcher(std::string_view expected) {
+    return testing::HasSubstr(std::string{expected});
 }
 
 }  // namespace utest::impl

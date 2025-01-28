@@ -138,7 +138,9 @@ std::string regex::str() const { return std::string{GetPatternView()}; }
 struct match_results::Impl {
     Impl() = default;
 
-    void Prepare(const regex& pattern) {
+    void Prepare(std::string_view target, const regex& pattern) {
+        this->target = target;
+
         UASSERT(pattern.impl_->regex);
         const auto groups_count = pattern.impl_->GetCapturingGroupCount() + 1;
         if (groups_count > groups.size()) {
@@ -146,6 +148,7 @@ struct match_results::Impl {
         }
     }
 
+    std::string_view target;
     boost::container::small_vector<re2::StringPiece, kGroupsSboSize> groups;
 };
 
@@ -160,9 +163,36 @@ match_results::~match_results() = default;
 std::size_t match_results::size() const { return impl_->groups.size(); }
 
 std::string_view match_results::operator[](std::size_t sub) const {
-    UASSERT(impl_->groups.size() > sub);
+    UASSERT(sub < size());
     const auto substr = impl_->groups[sub];
     return {substr.data(), substr.size()};
+}
+
+std::size_t match_results::position(std::size_t sub) const {
+    UASSERT(sub < size());
+    const auto substr = impl_->groups[sub];
+    UINVARIANT(
+        sub == 0 || !substr.empty(),
+        fmt::format(
+            "Trying to access position of capturing group {}, which is empty (missing), target='{}'", sub, impl_->target
+        )
+    );
+    return substr.data() - impl_->target.data();
+}
+
+std::size_t match_results::length(std::size_t sub) const {
+    UASSERT(sub < size());
+    return impl_->groups[sub].size();
+}
+
+std::string_view match_results::prefix() const {
+    UASSERT_MSG(size() > 0, "Empty match_results object");
+    return impl_->target.substr(0, position(0));
+}
+
+std::string_view match_results::suffix() const {
+    UASSERT_MSG(size() > 0, "Empty match_results object");
+    return impl_->target.substr(position(0) + impl_->groups[0].size());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -178,7 +208,7 @@ bool regex_match(std::string_view str, const regex& pattern) {
 
 bool regex_match(std::string_view str, match_results& m, const regex& pattern) {
     UASSERT(pattern.impl_->regex);
-    m.impl_->Prepare(pattern);
+    m.impl_->Prepare(str, pattern);
     return utils::Visit(
         *pattern.impl_->regex,
         [&](const re2::RE2& regex) {
@@ -214,7 +244,7 @@ bool regex_search(std::string_view str, const regex& pattern) {
 
 bool regex_search(std::string_view str, match_results& m, const regex& pattern) {
     UASSERT(pattern.impl_->regex);
-    m.impl_->Prepare(pattern);
+    m.impl_->Prepare(str, pattern);
     return utils::Visit(
         *pattern.impl_->regex,
         [&](const re2::RE2& regex) {

@@ -44,7 +44,7 @@ std::string AssertThrow(
 
 std::string AssertNoThrow(std::function<void()> statement, std::string_view statement_text);
 
-std::string QuoteStringForRegex(std::string_view message);
+testing::Matcher<const std::string&> MakeHasSubstrMatcher(std::string_view expected);
 
 }  // namespace utest::impl
 
@@ -132,7 +132,7 @@ USERVER_NAMESPACE_END
 #else
 // NOLINTNEXTLINE (cppcoreguidelines-macro-usage)
 #define EXPECT_UINVARIANT_FAILURE_MSG(statement, message_substring) \
-    UEXPECT_DEATH(statement, USERVER_NAMESPACE::utest::impl::QuoteStringForRegex(message_substring))
+    UEXPECT_DEATH(statement, USERVER_NAMESPACE::utest::impl::MakeHasSubstrMatcher(message_substring))
 #endif
 /// @endcond
 
