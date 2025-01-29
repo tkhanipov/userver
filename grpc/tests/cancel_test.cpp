@@ -313,7 +313,9 @@ UTEST_F(GrpcCancelSleep, CancelByTimeoutLogging) {
 
     UEXPECT_THROW(
         client.SayHello(
-            {}, std::make_unique<::grpc::ClientContext>(), ugrpc::client::Qos{std::chrono::milliseconds(100)}
+            {},
+            std::make_unique<::grpc::ClientContext>(),
+            ugrpc::client::Qos{std::nullopt, std::chrono::milliseconds(100)}
         ),
         ugrpc::client::DeadlineExceededError
     );
