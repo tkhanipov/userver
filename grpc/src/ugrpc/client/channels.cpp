@@ -41,7 +41,9 @@ DoTryWaitForConnected(grpc::Channel& channel, grpc::CompletionQueue& queue, engi
     engine::Deadline deadline,
     engine::TaskProcessor& blocking_task_processor
 ) {
-    const auto& channels = client_data.GetChannels();
+    const auto stub_state = client_data.GetStubState();
+    const auto& channels = stub_state->stubs.GetChannels();
+
     auto& queue = client_data.NextQueue();
 
     std::vector<engine::TaskWithResult<bool>> tasks{};

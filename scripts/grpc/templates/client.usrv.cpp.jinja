@@ -51,12 +51,13 @@ inline const bool k{{service.name}}TypesRegistration =
     std::unique_ptr<::grpc::ClientContext> context,
     const USERVER_NAMESPACE::ugrpc::client::Qos& qos
 ) const {
-    auto& stub = impl_.NextStubFromMethodId<{{utils.namespace_with_colons(proto.namespace)}}::{{service.name}}>({{method_id}});
     return {
         USERVER_NAMESPACE::ugrpc::client::impl::CreateCallParams(
-          impl_, {{method_id}}, std::move(context), qos
+            impl_, {{method_id}}, std::move(context), qos
         ),
-        [&stub](auto&&... args) { return stub.PrepareAsync{{method.name}}(std::forward<decltype(args)>(args)...); },
+        [](auto& stub, auto&&... args) {
+            return stub.template Get<{{utils.namespace_with_colons(proto.namespace)}}::{{service.name}}::Stub>().PrepareAsync{{method.name}}(std::forward<decltype(args)>(args)...);
+        },
         request,
     };
 }
@@ -71,16 +72,17 @@ inline const bool k{{service.name}}TypesRegistration =
     std::unique_ptr<::grpc::ClientContext> context,
     const USERVER_NAMESPACE::ugrpc::client::Qos& qos
 ) const {
-      auto& stub = impl_.NextStubFromMethodId<{{utils.namespace_with_colons(proto.namespace)}}::{{service.name}}>({{method_id}});
-      return {
-          USERVER_NAMESPACE::ugrpc::client::impl::CreateCallParams(
-              impl_, {{method_id}}, std::move(context), qos
-          ),
-          [&stub](auto&&... args) { return stub.PrepareAsync{{method.name}}(std::forward<decltype(args)>(args)...); },
+    return {
+        USERVER_NAMESPACE::ugrpc::client::impl::CreateCallParams(
+            impl_, {{method_id}}, std::move(context), qos
+        ),
+        [](auto& stub, auto&&... args) {
+            return stub.template Get<{{utils.namespace_with_colons(proto.namespace)}}::{{service.name}}::Stub>().PrepareAsync{{method.name}}(std::forward<decltype(args)>(args)...);
+        },
 {% if not method.client_streaming %}
-          request,
+        request,
 {% endif %}
-      };
+    };
 }
 {% endif %}
 {% endfor %}

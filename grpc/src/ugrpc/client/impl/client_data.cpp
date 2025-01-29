@@ -1,8 +1,6 @@
 #include <userver/ugrpc/client/impl/client_data.hpp>
 
-#include <userver/utils/algo.hpp>
 #include <userver/utils/assert.hpp>
-#include <userver/utils/rand.hpp>
 
 #include <userver/ugrpc/client/client_qos.hpp>
 #include <userver/ugrpc/client/impl/completion_queue_pool.hpp>
@@ -11,6 +9,8 @@
 USERVER_NAMESPACE_BEGIN
 
 namespace ugrpc::client::impl {
+
+ClientData::~ClientData() { config_subscription_.Unsubscribe(); }
 
 grpc::CompletionQueue& ClientData::NextQueue() const { return dependencies_.completion_queues.NextQueue(); }
 
@@ -30,17 +30,8 @@ const ugrpc::impl::StaticServiceMetadata& ClientData::GetMetadata() const {
 
 const dynamic_config::Key<ClientQos>* ClientData::GetClientQos() const { return dependencies_.qos; }
 
-const ClientData::StubPtr& ClientData::NextStubPtr(const StubPool& stubs) const {
-    return stubs[utils::RandRange(stubs.size())];
-}
-
 ugrpc::impl::ServiceStatistics& ClientData::GetServiceStatistics() {
     return dependencies_.statistics_storage.GetServiceStatistics(GetMetadata(), dependencies_.client_name);
-}
-
-std::size_t ClientData::GetDedicatedChannelCount(std::size_t method_id) const {
-    UASSERT(method_id < dedicated_stubs_.size());
-    return dedicated_stubs_[method_id].size();
 }
 
 ChannelFactory ClientData::CreateChannelFactory(const ClientDependencies& dependencies) {
@@ -52,11 +43,6 @@ ChannelFactory ClientData::CreateChannelFactory(const ClientDependencies& depend
         dependencies.endpoint,
         std::move(credentials),
         dependencies.client_factory_settings.channel_args};
-}
-
-utils::FixedArray<std::shared_ptr<grpc::Channel>>
-ClientData::CreateChannels(const ChannelFactory& channel_factory, std::size_t channel_count) {
-    return utils::GenerateFixedArray(channel_count, [&](std::size_t) { return channel_factory.CreateChannel(); });
 }
 
 }  // namespace ugrpc::client::impl
