@@ -24,7 +24,8 @@ public:
 
     void Log(Level, formatters::LoggerItemRef item) override;
 
-    formatters::BasePtr MakeFormatter(Level level, LogClass log_class) override;
+    formatters::BasePtr MakeFormatter(Level level, LogClass log_class, const utils::impl::SourceLocation& location)
+        override;
 
     void ForwardTo(LoggerBase* logger_to) override;
 

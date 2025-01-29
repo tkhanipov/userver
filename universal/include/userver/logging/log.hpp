@@ -217,17 +217,8 @@ struct EntryStorage final {
 #endif
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define USERVER_IMPL_LOG_TO(logger, level)                                      \
-    USERVER_NAMESPACE::logging::LogHelper(                                      \
-        logger,                                                                 \
-        level,                                                                  \
-        [](const auto& location) -> const USERVER_NAMESPACE::logging::Module& { \
-            static const USERVER_NAMESPACE::logging::Module module(location);   \
-            return module;                                                      \
-        }(USERVER_NAMESPACE::utils::impl::SourceLocation::Current()),           \
-        USERVER_NAMESPACE::logging::LogClass::kLog                              \
-    )                                                                           \
-        .AsLvalue()
+#define USERVER_IMPL_LOG_TO(logger, level) \
+    USERVER_NAMESPACE::logging::LogHelper(logger, level, USERVER_NAMESPACE::logging::LogClass::kLog).AsLvalue()
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define USERVER_IMPL_DYNAMIC_DEBUG_ENTRY                                                                 \

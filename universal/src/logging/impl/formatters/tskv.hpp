@@ -12,7 +12,7 @@ namespace logging::impl::formatters {
 
 class Tskv final : public Base {
 public:
-    Tskv(Level level, Format format);
+    Tskv(Level level, Format format, const utils::impl::SourceLocation& source_location);
 
     void AddTag(std::string_view key, const LogExtra::Value& value) override;
 

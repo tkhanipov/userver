@@ -16,7 +16,7 @@ USERVER_NAMESPACE_BEGIN
 
 namespace logging::impl::formatters {
 
-Tskv::Tskv(Level level, Format format) : format_(format) {
+Tskv::Tskv(Level level, Format format, const utils::impl::SourceLocation& location) : format_(format) {
     switch (format) {
         case Format::kTskv: {
             constexpr std::string_view kTemplate = "tskv\ttimestamp=0000-00-00T00:00:00.000000\tlevel=";
@@ -29,6 +29,13 @@ Tskv::Tskv(Level level, Format format) : format_(format) {
                 GetCurrentTimeString(now).ToStringView(),
                 FractionalMicroseconds(now),
                 level_string
+            );
+            fmt::format_to(
+                std::back_inserter(item_.log_line),
+                FMT_COMPILE("\tmodule={} ( {}:{} )"),
+                location.GetFunctionName(),
+                location.GetFileName(),
+                location.GetLineString()
             );
             return;
         }
@@ -43,6 +50,13 @@ Tskv::Tskv(Level level, Format format) : format_(format) {
                 GetCurrentTimeString(now).ToStringView(),
                 FractionalMicroseconds(now),
                 level_string
+            );
+            fmt::format_to(
+                std::back_inserter(item_.log_line),
+                FMT_COMPILE("\tmodule:{} ( {}:{} )"),
+                location.GetFunctionName(),
+                location.GetFileName(),
+                location.GetLineString()
             );
             return;
         }

@@ -8,6 +8,7 @@
 #include <userver/logging/impl/tag_writer.hpp>
 #include <userver/logging/logger.hpp>
 #include <userver/tracing/span.hpp>
+#include <userver/utils/algo.hpp>
 #include <userver/utils/assert.hpp>
 #include <userver/utils/encoding/hex.hpp>
 #include <userver/utils/overloaded.hpp>
@@ -29,12 +30,14 @@ const std::string kTimestampFormat = "%Y-%m-%dT%H:%M:%E*S";
 Formatter::Formatter(
     logging::Level level,
     logging::LogClass log_class,
+    const utils::impl::SourceLocation& location,
     SinkType sink_type,
     logging::LoggerPtr default_logger,
     Logger& logger
 )
     : logger_(logger) {
     if (sink_type == SinkType::kOtlp || sink_type == SinkType::kBoth) {
+        ::opentelemetry::proto::common::v1::KeyValue* kv_module = nullptr;
         if (log_class == logging::LogClass::kLog) {
             auto& log_record = item_.otlp.emplace<::opentelemetry::proto::logs::v1::LogRecord>();
             log_record.set_severity_text(grpc::string{logging::ToUpperCaseString(level)});
@@ -43,14 +46,22 @@ Formatter::Formatter(
                 std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()
                 );
             log_record.set_time_unix_nano(nanoseconds.count());
+
+            kv_module = log_record.add_attributes();
         } else {
-            item_.otlp.emplace<::opentelemetry::proto::trace::v1::Span>();
+            auto& span = item_.otlp.emplace<::opentelemetry::proto::trace::v1::Span>();
+            kv_module = span.add_attributes();
         }
+
+        kv_module->set_key("module");
+        kv_module->mutable_value()->set_string_value(utils::StrCat<grpc::string>(
+            location.GetFunctionName(), " ( ", location.GetFileName(), ":", location.GetLineString(), " )"
+        ));
     }
 
     if (sink_type == SinkType::kDefault || sink_type == SinkType::kBoth) {
         if (default_logger) {
-            item_.forwarded_formatter = default_logger->MakeFormatter(level, log_class);
+            item_.forwarded_formatter = default_logger->MakeFormatter(level, log_class, location);
         }
     }
 }
@@ -190,9 +201,10 @@ void Logger::Log(logging::Level level, logging::impl::formatters::LoggerItemRef 
     }
 }
 
-logging::impl::formatters::BasePtr Logger::MakeFormatter(logging::Level level, logging::LogClass log_class) {
+logging::impl::formatters::BasePtr
+Logger::MakeFormatter(logging::Level level, logging::LogClass log_class, const utils::impl::SourceLocation& location) {
     auto sink = log_class == logging::LogClass::kLog ? config_.logs_sink : config_.tracing_sink;
-    return std::make_unique<Formatter>(level, log_class, sink, default_logger_, *this);
+    return std::make_unique<Formatter>(level, log_class, location, sink, default_logger_, *this);
 }
 
 void Logger::SetAttributeValue(

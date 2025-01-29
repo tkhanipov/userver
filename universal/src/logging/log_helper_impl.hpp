@@ -26,7 +26,12 @@ struct LogHelper::InternalTag final {};
 
 class LogHelper::Impl final {
 public:
-    explicit Impl(LoggerRef logger, Level level, LogClass log_class) noexcept;
+    explicit Impl(
+        LoggerRef logger,
+        Level level,
+        LogClass log_class,
+        const utils::impl::SourceLocation& location
+    ) noexcept;
 
     void AddText(std::string_view text);
 

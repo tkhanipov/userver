@@ -11,9 +11,10 @@ USERVER_NAMESPACE_BEGIN
 
 namespace logging::impl::formatters {
 
-Struct::Struct(Level level, LogClass log_class) {
+Struct::Struct(Level level, LogClass log_class, const utils::impl::SourceLocation& location) {
     item_.level = level;
     item_.log_class = log_class;
+    item_.location = location;
 }
 
 void Struct::AddTag(std::string_view key, const LogExtra::Value& value) { item_.tags.emplace_back(key, value); }

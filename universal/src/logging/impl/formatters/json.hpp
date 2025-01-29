@@ -12,7 +12,7 @@ namespace logging::impl::formatters {
 
 class Json final : public Base {
 public:
-    explicit Json(Level level, Format format) noexcept(false);
+    explicit Json(Level level, Format format, const utils::impl::SourceLocation& source_location) noexcept(false);
 
     Json(const Json&) = delete;
 

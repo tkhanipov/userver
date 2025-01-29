@@ -62,12 +62,6 @@ struct Quoted final {
     std::string_view string;
 };
 
-struct Module {
-    explicit Module(const utils::impl::SourceLocation& location) noexcept;
-
-    std::string value;
-};
-
 enum class LogClass {
     kLog,
     kTrace,
@@ -87,15 +81,20 @@ public:
     LogHelper(
         LoggerRef logger,
         Level level,
-        const Module& module = Module{utils::impl::SourceLocation::Current()},
-        LogClass log_class = LogClass::kLog
+        LogClass log_class = LogClass::kLog,
+        const utils::impl::SourceLocation& location = utils::impl::SourceLocation::Current()
     ) noexcept;
 
     /// @brief Constructs LogHelper with span logging
     /// @param logger to log to (logging to nullptr does not output messages)
     /// @param level message log level
     /// @param location source location that will be written to logs
-    LogHelper(const LoggerPtr& logger, Level level, const Module& module, LogClass log_class = LogClass::kLog) noexcept;
+    LogHelper(
+        const LoggerPtr& logger,
+        Level level,
+        LogClass log_class = LogClass::kLog,
+        const utils::impl::SourceLocation& location = utils::impl::SourceLocation::Current()
+    ) noexcept;
 
     ~LogHelper();
 

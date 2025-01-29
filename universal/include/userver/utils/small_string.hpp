@@ -27,6 +27,8 @@ class SmallString final {
     using Container = boost::container::small_vector<char, N>;
 
 public:
+    using value_type = char;
+
     /// @brief Create empty string.
     SmallString() = default;
 

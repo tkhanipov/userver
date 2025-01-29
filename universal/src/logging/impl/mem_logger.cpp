@@ -53,7 +53,7 @@ void MemLogger::Log(Level level, formatters::LoggerItemRef msg) {
 
     std::unique_lock lock(pimpl_->mutex_);
     if (pimpl_->forward_logger_) {
-        auto formatter = pimpl_->forward_logger_->MakeFormatter(level, item.log_class);
+        auto formatter = pimpl_->forward_logger_->MakeFormatter(level, item.log_class, item.location);
         DispatchItem(item, *formatter);
 
         auto& li = formatter->ExtractLoggerItem();
@@ -66,15 +66,16 @@ void MemLogger::Log(Level level, formatters::LoggerItemRef msg) {
     pimpl_->data_.push_back(std::move(item));
 }
 
-formatters::BasePtr MemLogger::MakeFormatter(Level level, LogClass log_class) {
-    return std::make_unique<formatters::Struct>(level, log_class);
+formatters::BasePtr
+MemLogger::MakeFormatter(Level level, LogClass log_class, const utils::impl::SourceLocation& location) {
+    return std::make_unique<formatters::Struct>(level, log_class, location);
 }
 
 void MemLogger::ForwardTo(LoggerBase* logger_to) {
     std::unique_lock lock(pimpl_->mutex_);
     if (logger_to) {
         for (auto& log : pimpl_->data_) {
-            auto formatter = logger_to->MakeFormatter(log.level, log.log_class);
+            auto formatter = logger_to->MakeFormatter(log.level, log.log_class, log.location);
             DispatchItem(log, *formatter);
 
             auto& li = formatter->ExtractLoggerItem();

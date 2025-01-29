@@ -31,7 +31,9 @@ public:
 
     void SetLevel(Level) override {}
     void Log(Level, impl::formatters::LoggerItemRef) override {}
-    impl::formatters::BasePtr MakeFormatter(Level, LogClass) override { return std::make_unique<NullFormatter>(); }
+    impl::formatters::BasePtr MakeFormatter(Level, LogClass, const utils::impl::SourceLocation&) override {
+        return std::make_unique<NullFormatter>();
+    }
     void Flush() override {}
 };
 

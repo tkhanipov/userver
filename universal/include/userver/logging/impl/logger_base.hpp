@@ -37,15 +37,20 @@ public:
     virtual void PrependCommonTags(impl::TagWriter writer) const;
 
     virtual void Log(Level, formatters::LoggerItemRef item) = 0;
-    virtual formatters::BasePtr MakeFormatter(Level level, LogClass log_class) = 0;
+
+    virtual formatters::BasePtr
+    MakeFormatter(Level level, LogClass log_class, const utils::impl::SourceLocation& location) = 0;
 
     virtual void Flush() {}
 
     virtual void SetLevel(Level level);
+
     Level GetLevel() const noexcept;
+
     bool ShouldLog(Level level) const noexcept;
 
     void SetFlushOn(Level level);
+
     bool ShouldFlush(Level level) const;
 
     virtual void ForwardTo(LoggerBase* logger_to);
@@ -71,7 +76,8 @@ public:
 
     Format GetFormat() const noexcept;
 
-    formatters::BasePtr MakeFormatter(Level level, LogClass log_class) override;
+    formatters::BasePtr MakeFormatter(Level level, LogClass log_class, const utils::impl::SourceLocation& location)
+        override;
 
 private:
     const Format format_;

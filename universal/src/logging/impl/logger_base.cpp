@@ -26,17 +26,17 @@ void LoggerBase::ForwardTo(LoggerBase*) {}
 
 bool LoggerBase::DoShouldLog(Level /*level*/) const noexcept { return true; }
 
-formatters::BasePtr TextLogger::MakeFormatter(Level level, LogClass) {
+formatters::BasePtr TextLogger::MakeFormatter(Level level, LogClass, const utils::impl::SourceLocation& location) {
     auto format = GetFormat();
     switch (format) {
         case Format::kLtsv:
         case Format::kTskv:
         case Format::kRaw:
-            return std::make_unique<formatters::Tskv>(level, format);
+            return std::make_unique<formatters::Tskv>(level, format, location);
 
         case Format::kJson:
         case Format::kJsonYaDeploy:
-            return std::make_unique<formatters::Json>(level, format);
+            return std::make_unique<formatters::Json>(level, format, location);
 
         case Format::kStruct:
             UINVARIANT(false, "Invalid logger type");

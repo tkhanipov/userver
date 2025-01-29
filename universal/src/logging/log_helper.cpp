@@ -107,22 +107,27 @@ constexpr bool NeedsQuoteEscaping(char c) { return c == '\"' || c == '\\'; }
 
 }  // namespace
 
-Module::Module(const utils::impl::SourceLocation& location) noexcept
-    : value(fmt::format("{} ( {}:{} )", location.GetFunctionName(), location.GetFileName(), location.GetLineString())) {
-}
-
-LogHelper::LogHelper(LoggerRef logger, Level level, const Module& module, LogClass log_class) noexcept
-    : pimpl_(ThreadLocalMemPool<Impl>::Pop(logger, level, log_class)) {
+LogHelper::LogHelper(
+    LoggerRef logger,
+    Level level,
+    LogClass log_class,
+    const utils::impl::SourceLocation& location
+) noexcept
+    : pimpl_(ThreadLocalMemPool<Impl>::Pop(logger, level, log_class, location)) {
     try {
-        PutSwTag("module", module.value);
         logger.PrependCommonTags(GetTagWriter());
     } catch (...) {
         InternalLoggingError("Failed to log initial data");
     }
 }
 
-LogHelper::LogHelper(const LoggerPtr& logger, Level level, const Module& module, LogClass log_class) noexcept
-    : LogHelper(logger ? *logger : logging::GetNullLogger(), level, module, log_class) {}
+LogHelper::LogHelper(
+    const LoggerPtr& logger,
+    Level level,
+    LogClass log_class,
+    const utils::impl::SourceLocation& location
+) noexcept
+    : LogHelper(logger ? *logger : logging::GetNullLogger(), level, log_class, location) {}
 
 LogHelper::~LogHelper() {
     DoLog();

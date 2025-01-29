@@ -14,8 +14,15 @@ USERVER_NAMESPACE_BEGIN
 
 namespace logging {
 
-LogHelper::Impl::Impl(LoggerRef logger, Level level, LogClass log_class) noexcept
-    : level_(std::max(level, logger.GetLevel())), logger_(logger), formatter_(logger.MakeFormatter(level, log_class)) {}
+LogHelper::Impl::Impl(
+    LoggerRef logger,
+    Level level,
+    LogClass log_class,
+    const utils::impl::SourceLocation& location
+) noexcept
+    : level_(std::max(level, logger.GetLevel())),
+      logger_(logger),
+      formatter_(logger.MakeFormatter(level, log_class, location)) {}
 
 void LogHelper::Impl::AddText(std::string_view text) { msg_.append(text); }
 

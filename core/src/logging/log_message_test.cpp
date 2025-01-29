@@ -94,6 +94,41 @@ TEST_F(LoggingTest, LogFormat) {
         << "Path shortening for logs stopped working.";
 }
 
+TEST_F(LoggingLtsvTest, LogFormatLtsv) {
+    // Note: this is a golden test. The order and content of tags is stable, which
+    // is an implementation detail, but it makes this test possible. If the order
+    // or content of tags change, this test should be fixed to reflect the
+    // changes.
+    constexpr std::string_view kExpectedPattern = R"(timestamp:\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\t)"
+                                                  R"(level:[A-Z]+\t)"
+                                                  R"(module:[-_\w\d ():./]+\t)"
+                                                  R"(task_id:[0-9A-F]+\t)"
+                                                  R"(thread_id:0x[0-9A-F]+\t)"
+                                                  R"(foo:bar\t)"
+                                                  R"(text:test\n)";
+    LOG_CRITICAL() << "test" << logging::LogExtra{{"foo", "bar"}};
+    logging::LogFlush();
+    EXPECT_TRUE(utils::regex_match(GetStreamString(), utils::regex(kExpectedPattern))) << GetStreamString();
+}
+
+TEST_F(LoggingRawTest, LogFormat) {
+    // Note: this is a golden test. The order and content of tags is stable, which
+    // is an implementation detail, but it makes this test possible. If the order
+    // or content of tags change, this test should be fixed to reflect the
+    // changes.
+    constexpr std::string_view kExpectedPattern = R"(tskv\t)"
+                                                  R"(task_id=[0-9A-F]+\t)"
+                                                  R"(thread_id=0x[0-9A-F]+\t)"
+                                                  R"(foo=bar\t)"
+                                                  R"(text=test\n)";
+    LOG_CRITICAL() << "test" << logging::LogExtra{{"foo", "bar"}};
+    logging::LogFlush();
+    EXPECT_TRUE(utils::regex_match(GetStreamString(), utils::regex(kExpectedPattern))) << GetStreamString();
+
+    EXPECT_THAT(GetStreamString(), testing::Not(testing::HasSubstr(" ( /")))
+        << "Path shortening for logs stopped working.";
+}
+
 TEST_F(LoggingTest, MemLoggerLogFormat) {
     logging::impl::MemLogger mem_logger;
     mem_logger.ForwardTo(&*GetStreamLogger());
@@ -246,7 +281,8 @@ TEST_F(LoggingTest, ExternalModulePath) {
         logging::LogHelper a(
             logging::GetDefaultLogger(),
             logging::Level::kCritical,
-            logging::Module{utils::impl::SourceLocation::Custom(__LINE__, kPath, __func__)}
+            logging::LogClass::kLog,
+            utils::impl::SourceLocation::Custom(__LINE__, kPath, __func__)
         );
     }
     logging::LogFlush();
@@ -261,7 +297,8 @@ TEST_F(LoggingTest, LogHelperNullptr) {
     logging::LogHelper(
         logging::LoggerPtr{},
         logging::Level::kCritical,
-        logging::Module{utils::impl::SourceLocation::Custom(__LINE__, kPath, __func__)}
+        logging::LogClass::kLog,
+        utils::impl::SourceLocation::Custom(__LINE__, kPath, __func__)
     )
             .AsLvalue()
         << "Test";
@@ -277,7 +314,8 @@ TEST_F(LoggingTest, LogHelperNullLogger) {
     logging::LogHelper(
         logging::GetNullLogger(),
         logging::Level::kCritical,
-        logging::Module{utils::impl::SourceLocation::Custom(__LINE__, kPath, __func__)}
+        logging::LogClass::kLog,
+        utils::impl::SourceLocation::Custom(__LINE__, kPath, __func__)
     )
             .AsLvalue()
         << "Test";
@@ -294,7 +332,8 @@ TEST_F(LoggingTest, PartialPrefixModulePath) {
         logging::LogHelper a(
             logging::GetDefaultLogger(),
             logging::Level::kCritical,
-            logging::Module{utils::impl::SourceLocation::Custom(__LINE__, kPath, __func__)}
+            logging::LogClass::kLog,
+            utils::impl::SourceLocation::Custom(__LINE__, kPath, __func__)
         );
     }
     logging::LogFlush();
@@ -517,25 +556,18 @@ TEST_F(LoggingTest, Noexceptness) {
     static_assert(noexcept(logging::LogExtra::Stacktrace()));
 
     if constexpr (noexcept(std::string_view{"some string"})) {
-        EXPECT_TRUE(noexcept(logging::LogHelper(
-            logging::GetNullLogger(), logging::Level::kCritical, logging::Module{utils::impl::SourceLocation::Current()}
-        )));
+        EXPECT_TRUE(noexcept(logging::LogHelper(logging::GetNullLogger(), logging::Level::kCritical)));
 
         const auto logger_ptr = logging::MakeNullLogger();
-        EXPECT_TRUE(noexcept(logging::LogHelper(
-            logger_ptr, logging::Level::kCritical, logging::Module{utils::impl::SourceLocation::Current()}
-        )));
+        EXPECT_TRUE(noexcept(logging::LogHelper(logger_ptr, logging::Level::kCritical)));
 
-        EXPECT_TRUE(noexcept(logging::LogHelper(
-            logging::LoggerPtr{}, logging::Level::kCritical, logging::Module{utils::impl::SourceLocation::Current()}
-        )));
+        EXPECT_TRUE(noexcept(logging::LogHelper(logging::LoggerPtr{}, logging::Level::kCritical)));
 
         EXPECT_TRUE(noexcept(std::declval<const logging::impl::StaticLogEntry&>().ShouldNotLog(
             logging::GetDefaultLogger(), logging::Level::kInfo
         )));
 
-        // TODO: uncomment after  https://st.yandex-team.ru/TAXICOMMON-9955
-        // EXPECT_TRUE(noexcept(USERVER_IMPL_LOG_TO(logging::GetNullLogger(), logging::Level::kInfo)));
+        EXPECT_TRUE(noexcept(USERVER_IMPL_LOG_TO(logging::GetNullLogger(), logging::Level::kInfo)));
 
         EXPECT_TRUE(noexcept(std::declval<logging::LogHelper&>() << "Test"));
         EXPECT_TRUE(noexcept(std::declval<logging::LogHelper&>() << logging::LogExtra::Stacktrace()));

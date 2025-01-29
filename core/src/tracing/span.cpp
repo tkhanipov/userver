@@ -117,8 +117,7 @@ Span::Impl::~Impl() {
 
     {
         const impl::DetachLocalSpansScope ignore_local_span;
-        logging::LogHelper lh{
-            logging::GetDefaultLogger(), log_level_, logging::Module{source_location_}, logging::LogClass::kTrace};
+        logging::LogHelper lh{logging::GetDefaultLogger(), log_level_, logging::LogClass::kTrace, source_location_};
         std::move(*this).PutIntoLogger(lh.GetTagWriter());
     }
 }

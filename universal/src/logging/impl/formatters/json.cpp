@@ -11,7 +11,7 @@ USERVER_NAMESPACE_BEGIN
 
 namespace logging::impl::formatters {
 
-Json::Json(Level level, Format format) : format_(format) {
+Json::Json(Level level, Format format, const utils::impl::SourceLocation& location) : format_(format) {
     const auto now = std::chrono::system_clock::now();
 
     object_.emplace(sb_);
@@ -23,6 +23,17 @@ Json::Json(Level level, Format format) : format_(format) {
 
     sb_.Key((format_ == Format::kJson) ? "level" : "levelStr");
     sb_.WriteString(logging::ToUpperCaseString(level));
+
+    sb_.Key("module");
+    fmt::memory_buffer buffer;
+    fmt::format_to(
+        std::back_inserter(buffer),
+        FMT_COMPILE("{} ( {}:{} )"),
+        location.GetFunctionName(),
+        location.GetFileName(),
+        location.GetLineString()
+    );
+    sb_.WriteString({buffer.data(), buffer.size()});
 }
 
 void Json::AddTag(std::string_view key, const LogExtra::Value& value) {

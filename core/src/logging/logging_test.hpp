@@ -126,4 +126,9 @@ protected:
     LoggingJsonTest() : LoggingTestBase(logging::Format::kJson) { SetDefaultLogger(GetStreamLogger()); }
 };
 
+class LoggingRawTest : public LoggingTestBase {
+protected:
+    LoggingRawTest() : LoggingTestBase(logging::Format::kRaw) { SetDefaultLogger(GetStreamLogger()); }
+};
+
 USERVER_NAMESPACE_END

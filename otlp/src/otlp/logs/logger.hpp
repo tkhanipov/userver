@@ -50,7 +50,7 @@ class Logger;
 
 class Formatter final : public logging::impl::formatters::Base {
 public:
-    Formatter(logging::Level level, logging::LogClass log_class, SinkType sink_type, logging::LoggerPtr default_logger, Logger&);
+    Formatter(logging::Level level, logging::LogClass log_class, const utils::impl::SourceLocation& location, SinkType sink_type, logging::LoggerPtr default_logger, Logger&);
 
     void AddTag(std::string_view key, const logging::LogExtra::Value& value) override;
     void AddTag(std::string_view key, std::string_view value) override;
@@ -73,7 +73,11 @@ public:
 
     void Log(logging::Level level, logging::impl::formatters::LoggerItemRef item) override;
 
-    logging::impl::formatters::BasePtr MakeFormatter(logging::Level level, logging::LogClass log_class) override;
+    logging::impl::formatters::BasePtr MakeFormatter(
+        logging::Level level,
+        logging::LogClass log_class,
+        const utils::impl::SourceLocation& location
+    ) override;
 
     void PrependCommonTags(logging::impl::TagWriter writer) const override;
 
