@@ -137,17 +137,17 @@ Service's `Makefile` supports custom presets through additional targets like
 
 You can download prebuilt userver using one of the following ways:
 
-1) @ref devcontainers "Docker (Dev Containers)" ← recommended for beginners;
-2) @ref docker_with_ubuntu_22_04 "Docker (manual)";
-3) @ref prebuilt_deb_package "prebuilt Debian package";
-4) @ref userver_conan "Conan";
+1. @ref devcontainers "Docker (Dev Containers)" ← recommended for beginners;
+2. @ref docker_with_ubuntu_22_04 "Docker (manual)";
+3. @ref prebuilt_deb_package "prebuilt Debian package";
+4. @ref userver_conan "Conan";
 
 Alternatively, install @ref scripts/docs/en/userver/build/dependencies.md "build dependencies" for userver,
 then build userver in one of the following ways:
 
-5) @ref userver_install "install userver";
-6) let the service template download and build userver as a subdirectory using (@ref userver_cpm "CPM");
-7) pass a path to custom userver location to `download_userver()`, then let the service
+5. @ref userver_install "install userver";
+6. let the service template download and build userver as a subdirectory using (@ref userver_cpm "CPM");
+7. pass a path to custom userver location to `download_userver()`, then let the service
    @ref service_templates_presets "build userver as a subdirectory".
 
 @anchor devcontainers
