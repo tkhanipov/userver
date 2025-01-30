@@ -64,24 +64,23 @@ ClientFactoryConfig Parse(const yaml_config::YamlConfig& value, formats::parse::
 
 ClientFactorySettings
 MakeFactorySettings(ClientFactoryConfig&& config, const storages::secdist::SecdistConfig* secdist) {
-    auto creds = MakeDefaultCredentials(config.auth_type);
-    std::unordered_map<std::string, std::shared_ptr<grpc::ChannelCredentials>> client_creds;
+    auto credentials = MakeDefaultCredentials(config.auth_type);
+    std::unordered_map<std::string, std::shared_ptr<grpc::ChannelCredentials>> client_credentials;
 
     if (secdist) {
         const auto& tokens = secdist->Get<Secdist>();
 
         for (const auto& [client_name, token] : tokens.tokens) {
-            client_creds[client_name] = grpc::CompositeChannelCredentials(
-                creds, grpc::AccessTokenCredentials(ugrpc::impl::ToGrpcString(token))
+            client_credentials[client_name] = grpc::CompositeChannelCredentials(
+                credentials, grpc::AccessTokenCredentials(ugrpc::impl::ToGrpcString(token))
             );
         }
     }
 
     return ClientFactorySettings{
-        creds,
-        client_creds,
+        credentials,
+        client_credentials,
         config.channel_args,
-        logging::Level::kError,
         config.channel_count,
     };
 }

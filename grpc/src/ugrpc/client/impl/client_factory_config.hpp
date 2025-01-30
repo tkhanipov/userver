@@ -3,7 +3,7 @@
 #include <userver/storages/secdist/secdist.hpp>
 #include <userver/yaml_config/yaml_config.hpp>
 
-#include <userver/ugrpc/client/client_factory.hpp>
+#include <userver/ugrpc/client/client_factory_settings.hpp>
 
 USERVER_NAMESPACE_BEGIN
 

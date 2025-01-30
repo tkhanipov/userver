@@ -7,16 +7,14 @@
 
 #include <grpcpp/completion_queue.h>
 
-#include <userver/dynamic_config/source.hpp>
-#include <userver/engine/task/task_processor_fwd.hpp>
+#include <userver/dynamic_config/snapshot.hpp>
 #include <userver/rcu/rcu.hpp>
 #include <userver/testsuite/grpc_control.hpp>
 #include <userver/utils/fixed_array.hpp>
 
-#include <userver/ugrpc/client/client_factory_settings.hpp>
-#include <userver/ugrpc/client/client_settings.hpp>
 #include <userver/ugrpc/client/fwd.hpp>
 #include <userver/ugrpc/client/impl/channel_factory.hpp>
+#include <userver/ugrpc/client/impl/client_dependencies.hpp>
 #include <userver/ugrpc/client/impl/stub_any.hpp>
 #include <userver/ugrpc/client/impl/stub_pool.hpp>
 #include <userver/ugrpc/client/middlewares/fwd.hpp>
@@ -25,27 +23,7 @@
 
 USERVER_NAMESPACE_BEGIN
 
-namespace ugrpc::impl {
-class StatisticsStorage;
-class CompletionQueuePoolBase;
-}  // namespace ugrpc::impl
-
 namespace ugrpc::client::impl {
-
-/// Contains all non-code-generated dependencies for creating a gRPC client
-struct ClientDependencies final {
-    std::string client_name;
-    std::string endpoint;
-    Middlewares mws;
-    ugrpc::impl::CompletionQueuePoolBase& completion_queues;
-    ugrpc::impl::StatisticsStorage& statistics_storage;
-    dynamic_config::Source config_source;
-    testsuite::GrpcControl& testsuite_grpc;
-    const dynamic_config::Key<ClientQos>* qos{nullptr};
-    const ClientFactorySettings& client_factory_settings;
-    engine::TaskProcessor& channel_task_processor;
-    DedicatedMethodsConfig dedicated_methods_config;
-};
 
 struct GenericClientTag final {
     explicit GenericClientTag() = default;

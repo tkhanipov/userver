@@ -13,16 +13,6 @@ namespace ugrpc::client::impl {
 
 class StubPool final {
 public:
-    StubPool() = default;
-
-    std::size_t Size() const { return stubs_.size(); }
-
-    StubAny& NextStub() const;
-
-    const utils::FixedArray<std::shared_ptr<grpc::Channel>>& GetChannels() const { return channels_; }
-
-    const utils::FixedArray<StubAny>& GetStubs() const { return stubs_; }
-
     template <typename Stub>
     static StubPool Create(std::size_t size, const ChannelFactory& channel_factory) {
         auto channels = utils::GenerateFixedArray(size, [&channel_factory](std::size_t) {
@@ -33,6 +23,16 @@ public:
         });
         return StubPool{std::move(channels), std::move(stubs)};
     }
+
+    StubPool() = default;
+
+    std::size_t Size() const { return stubs_.size(); }
+
+    StubAny& NextStub() const;
+
+    const utils::FixedArray<std::shared_ptr<grpc::Channel>>& GetChannels() const { return channels_; }
+
+    const utils::FixedArray<StubAny>& GetStubs() const { return stubs_; }
 
 private:
     StubPool(utils::FixedArray<std::shared_ptr<grpc::Channel>>&& channels, utils::FixedArray<StubAny>&& stubs)

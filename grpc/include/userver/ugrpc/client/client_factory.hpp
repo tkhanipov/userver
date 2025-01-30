@@ -12,6 +12,7 @@
 
 #include <userver/ugrpc/client/client_factory_settings.hpp>
 #include <userver/ugrpc/client/client_settings.hpp>
+#include <userver/ugrpc/client/impl/client_dependencies.hpp>
 #include <userver/ugrpc/client/middlewares/base.hpp>
 
 USERVER_NAMESPACE_BEGIN
@@ -38,7 +39,7 @@ class ClientFactory final {
 public:
     /// @brief Make a client of the specified code-generated type.
     template <typename Client>
-    Client MakeClient(ClientSettings&& settings);
+    Client MakeClient(ClientSettings&& client_settings);
 
     /// @deprecated Use the overload taking @ref ClientSettings instead.
     /// @brief Make a client of the specified code-generated type.
@@ -50,7 +51,7 @@ public:
     /// @cond
     // For internal use only.
     ClientFactory(
-        ClientFactorySettings&& settings,
+        ClientFactorySettings&& client_factory_settings,
         engine::TaskProcessor& channel_task_processor,
         MiddlewareFactories mws,
         ugrpc::impl::CompletionQueuePoolBase& completion_queues,
@@ -63,7 +64,7 @@ public:
 private:
     impl::ClientDependencies MakeClientDependencies(ClientSettings&& settings);
 
-    ClientFactorySettings settings_;
+    ClientFactorySettings client_factory_settings_;
     engine::TaskProcessor& channel_task_processor_;
     MiddlewareFactories mws_;
     ugrpc::impl::CompletionQueuePoolBase& completion_queues_;
