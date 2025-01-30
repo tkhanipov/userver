@@ -45,10 +45,10 @@ struct Command {
     size_t instance_idx = 0;
     uint32_t invoke_counter = 0;
     int counter = 0;
-    bool asking = false;
-    bool redirected = false;
-    bool read_only = false;
-    std::string name;
+    const bool asking = false;
+    const bool redirected = false;
+    const bool read_only = false;
+    const std::string name;
 };
 
 CommandPtr PrepareCommand(
