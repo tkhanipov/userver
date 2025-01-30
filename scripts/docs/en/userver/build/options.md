@@ -181,7 +181,7 @@ The exact format of setting cmake options varies depending on the method of buil
 
 It is possible to build userver based services with libraries statically linked in.
 
-@warning The support is platform dependant, as a result some libraies on some platforms may linked dynamically. Feel free to provide a PR to support your favourite platform.
+@warning The support is platform dependant, as a result some libraries on some platforms may linked dynamically. Feel free to provide a PR to support your favourite platform.
 
 Userver does not build dynamic libraries itself, but most of its dependencies do. CMake (by default) prefers dynamic libraries on Unix-like operating systems.
 
@@ -190,7 +190,7 @@ With the option, CMake tries to find all dependencies as static libraries (and d
 - To link statically with `libstdc++` or `libc++`, use `CMAKE_EXE_LINKER_FLAGS="-static-libstdc++ -static-libgcc"`.
 - To force fully static binary (with statically linked `libc`), use `CMAKE_EXE_LINKER_FLAGS="-static"`. In such case, all dependencies must be provided as static libraries. Also `userver` must be build with `USERVER_DISABLE_PHDR_CACHE=ON` (without this flag, it can lead to endless memory allocation).
 
-Some dependecies usually should be build from source for statically linked executable:
+Some dependencies usually should be build from source for statically linked executable:
 1. `Curl`. Use `USERVER_FORCE_DOWNLOAD_CURL=ON` to download and build Curl from source.
 2. `cctz`, `yaml-cpp`, `fmt` often have no static libraries in their packages, so they should be build from source and installed in your host system (for instance, in `/usr/local`).
 

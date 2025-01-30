@@ -22,7 +22,7 @@ public:
     LabelView(Label&& label) = delete;
     explicit LabelView(const Label& label);
     constexpr LabelView(std::string_view name, std::string_view value) : name_(name), value_(value) {
-        UINVARIANT(!name_.empty(), "The lable name must not be empty.");
+        UINVARIANT(!name_.empty(), "The label name must not be empty.");
     }
 
     template <class T, std::enable_if_t<std::is_arithmetic_v<T>>* = nullptr>
