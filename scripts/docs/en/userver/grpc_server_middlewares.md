@@ -15,7 +15,6 @@ There are default middlewares:
  - grpc-server-deadline-propagation
  - grpc-server-congestion-control
  - grpc-server-baggage
- - grpc-server-field-mask
  - grpc-server-headers-propagator
 
 All of these middlewares are enabled by default. However, you must register components of these middlewares in the component list.
@@ -31,13 +30,13 @@ components_manager:
 
         grpc-server-middlewares-pipeline:
             middlewares:
-                grpc-server-field-mask:
+                grpc-server-headers-propagator:
                     enabled: false
 
         some-service:
             middlewares:
                 # force enable in this service. Or it can be disabled for special service
-                grpc-server-field-mask:
+                grpc-server-headers-propagator:
                     enabled: true
 
 ```

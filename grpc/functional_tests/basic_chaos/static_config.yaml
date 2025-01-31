@@ -37,16 +37,9 @@ components_manager:
             # Nothing
 # /// [Sample grpc server congestion control middleware component config]
 
-# /// [Sample grpc server field-mask middleware component config]
-        grpc-server-field-mask:
-            metadata-field-name: field-mask
-# /// [Sample grpc server field-mask middleware component config]
-
         grpc-server-middlewares-pipeline:
             middlewares:
                 grpc-server-headers-propagator:
-                    enabled: false
-                grpc-server-field-mask:
                     enabled: false
                 grpc-server-deadline-propagation:
                     enabled: false

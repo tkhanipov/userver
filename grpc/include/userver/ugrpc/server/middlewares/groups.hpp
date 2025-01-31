@@ -54,7 +54,6 @@ struct PostCore final {
 ///
 /// @details There are:
 /// * ugrpc::server::middlewares::baggage::Component
-/// * ugrpc::server::middlewares::field_mask::Component
 /// * ugrpc::server::middlewares::headers_propagator::Component
 struct User final {
     static constexpr std::string_view kName = "user";

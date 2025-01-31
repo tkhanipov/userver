@@ -7,7 +7,6 @@
 #include <userver/ugrpc/server/middlewares/baggage/component.hpp>
 #include <userver/ugrpc/server/middlewares/congestion_control/component.hpp>
 #include <userver/ugrpc/server/middlewares/deadline_propagation/component.hpp>
-#include <userver/ugrpc/server/middlewares/field_mask/component.hpp>
 #include <userver/ugrpc/server/middlewares/headers_propagator/component.hpp>
 #include <userver/ugrpc/server/middlewares/log/component.hpp>
 
@@ -25,7 +24,6 @@ using Baggage = ugrpc::server::middlewares::baggage::Component;
 using Deadline = ugrpc::server::middlewares::deadline_propagation::Component;
 using Congestion = ugrpc::server::middlewares::congestion_control::Component;
 using HeadersPropagator = ugrpc::server::middlewares::headers_propagator::Component;
-using FieldMask = ugrpc::server::middlewares::field_mask::Component;
 
 constexpr auto kStrongConnect = ugrpc::server::DependencyType::kStrong;
 constexpr auto kWeakConnect = ugrpc::server::DependencyType::kWeak;
@@ -55,7 +53,6 @@ ugrpc::server::impl::Dependencies kDefaultDependencies{
     {std::string{Deadline::kName},
      Builder().InGroup<ugrpc::server::groups::Core>().After<Congestion>(kWeakConnect).Extract(Deadline::kName)},
     {std::string{Baggage::kName}, Builder().InGroup<ugrpc::server::groups::User>().Extract(Baggage::kName)},
-    {std::string{FieldMask::kName}, Builder().InGroup<ugrpc::server::groups::User>().Extract(FieldMask::kName)},
     {std::string{HeadersPropagator::kName},
      Builder().InGroup<ugrpc::server::groups::User>().Extract(HeadersPropagator::kName)},
 };
@@ -111,7 +108,6 @@ TEST(MiddlewarePipeline, SimpleList) {
         Mid<Congestion>(),
         Mid<Deadline>(),
         Mid<Baggage>(),
-        Mid<FieldMask>(),
         Mid<HeadersPropagator>(),
     };
 
@@ -122,7 +118,6 @@ TEST(MiddlewarePipeline, DisableWeakConnection) {
     auto dependencies = kDefaultDependencies;
     const bool disabled = false;
     dependencies["grpc-server-logging"].enabled = disabled;
-    dependencies["grpc-server-field-mask"].enabled = disabled;
 
     const ugrpc::server::impl::MiddlewarePipeline pipeline{std::move(dependencies)};
     const auto& list = pipeline.GetOrderedList();
@@ -132,7 +127,6 @@ TEST(MiddlewarePipeline, DisableWeakConnection) {
         Mid<Congestion>(),
         Mid<Deadline>(),
         Mid<Baggage>(),
-        Mid<FieldMask>(disabled),
         Mid<HeadersPropagator>(),
     };
     ASSERT_EQ(expected, list);
@@ -175,7 +169,6 @@ TEST(MiddlewarePipeline, LexicographicOrder) {
         Mid<Congestion>(),
         Mid<Deadline>(),
         Mid<Baggage>(),
-        Mid<FieldMask>(),
         Mid<HeadersPropagator>(),
     };
     ASSERT_EQ(expected, list);
@@ -197,7 +190,6 @@ TEST(MiddlewarePipeline, MultiDependency) {
         Mid<A2>(),
         Mid<Deadline>(),
         Mid<Baggage>(),
-        Mid<FieldMask>(),
         Mid<HeadersPropagator>(),
     };
     ASSERT_EQ(expected, list);
@@ -219,7 +211,6 @@ TEST(MiddlewarePipeline, BetweenGroups) {
         Mid<Congestion>(),
         Mid<Deadline>(),
         Mid<Baggage>(),
-        Mid<FieldMask>(),
         Mid<HeadersPropagator>(),
     };
     ASSERT_EQ(expected, list);
@@ -245,7 +236,6 @@ TEST(MiddlewarePipeline, DisablePerService) {
         std::string{Congestion::kName},
         // Deadline id disabled
         std::string{Baggage::kName},
-        std::string{FieldMask::kName},
         std::string{HeadersPropagator::kName},
         // U1 is disabled
     };
@@ -269,7 +259,7 @@ TEST(MiddlewarePipeline, DisableUserGroup) {
         std::string{Congestion::kName},
         std::string{Deadline::kName},
         std::string{Baggage::kName},  // force enable
-        // Baggage, FieldMask and HeadersPropagator are disabled
+        // Baggage and HeadersPropagator are disabled
     };
     ASSERT_EQ(expected, list);
 };
@@ -318,7 +308,6 @@ TEST(MiddlewarePipeline, GlobalDisableAndPerServiceEnable) {
     dependencies["grpc-server-logging"].enabled = false;
     dependencies["grpc-server-headers-propagator"].enabled = false;
     dependencies["grpc-server-baggage"].enabled = false;
-    dependencies["grpc-server-field-mask"].enabled = false;
 
     const ugrpc::server::impl::MiddlewarePipeline pipeline{std::move(dependencies)};
     const auto list = pipeline.GetPerServiceMiddlewares(ugrpc::server::impl::MiddlewareServiceConfig{
@@ -335,7 +324,6 @@ TEST(MiddlewarePipeline, GlobalDisableAndPerServiceEnable) {
         std::string{Congestion::kName},
         std::string{Deadline::kName},
         std::string{Baggage::kName},  // force enabled
-        // FieldMask is disabled
         // HeadersPropagator is disabled
     };
     ASSERT_EQ(expected, list);
@@ -357,7 +345,6 @@ TEST(MiddlewarePipeline, DurabilityOrder) {
         std::string{Log::kName},
         std::string{Congestion::kName},
         std::string{Deadline::kName},
-        std::string{FieldMask::kName},
         std::string{HeadersPropagator::kName},
         std::string{U2::kName},
         std::string{U1::kName},
@@ -385,7 +372,6 @@ TEST(MiddlewarePipeline, DurabilityOrder) {
         std::string{Log::kName},
         std::string{Congestion::kName},
         std::string{Deadline::kName},
-        std::string{FieldMask::kName},
         std::string{HeadersPropagator::kName},
         std::string{U2::kName},  // There is a phantom disabled node 'u1', so U2 is still before Baggage
         std::string{Baggage::kName},

@@ -18,7 +18,6 @@ const std::unordered_map<std::string, MiddlewareConfig>& UserverMiddlewares() {
         {"grpc-server-baggage", {}},
         {"grpc-server-congestion-control", {}},
         {"grpc-server-deadline-propagation", {}},
-        {"grpc-server-field-mask", {}},
         {"grpc-server-headers-propagator", {}},
     };
     return core_pipeline;

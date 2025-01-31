@@ -11,7 +11,6 @@ TEST(TopologySort, Basic) {
         {"grpc-server-baggage", {"grpc-server-logging"}},
         {"grpc-server-congestion-control", {"grpc-server-logging"}},
         {"grpc-server-deadline-propagation", {"grpc-server-logging"}},
-        {"grpc-server-field-mask", {"grpc-server-logging"}},
         {"grpc-server-headers-propagator", {"grpc-server-logging"}},
         {"grpc-server-logging", {}},
     };
@@ -21,7 +20,6 @@ TEST(TopologySort, Basic) {
         "grpc-server-baggage",
         "grpc-server-congestion-control",
         "grpc-server-deadline-propagation",
-        "grpc-server-field-mask",
         "grpc-server-headers-propagator"};
     ASSERT_EQ(sort, expected);
 }
