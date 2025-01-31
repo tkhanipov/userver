@@ -91,7 +91,9 @@ ConnectionPool::ConnectionPool(
       settings_{settings},
       conn_settings_{conn_settings},
       bg_task_processor_{bg_task_processor},
-      queue_{settings.max_size},
+      queue_{ConnectionQueue::Create()},
+      conn_consumer_{queue_->GetMultiConsumer()},
+      conn_producer_{queue_->GetMultiProducer()},
       size_semaphore_{settings.max_size},
       connecting_semaphore_{settings.connecting_limit ? settings.connecting_limit : kUnlimitedConnecting},
       wait_count_{0},
@@ -495,10 +497,7 @@ void ConnectionPool::Push(Connection* connection) {
         return;
     }
 
-    if (queue_.push(connection)) {
-        { const std::lock_guard lock{wait_mutex_}; }
-        conn_available_.NotifyOne();
-    } else {
+    if (!conn_producer_.PushNoblock(std::move(connection))) {
         // TODO Reflect this as a statistics error
         LOG_WARNING() << "Couldn't push connection back to the pool. Deleting...";
         DeleteConnection(connection);
@@ -517,7 +516,7 @@ Connection* ConnectionPool::Pop(engine::Deadline deadline) {
     Stopwatch st{stats_.acquire_percentile};
     Connection* connection = nullptr;
     auto conn_settings = conn_settings_.Read();
-    while (queue_.pop(connection)) {
+    while (conn_consumer_.PopNoblock(connection)) {
         if (connection->GetSettings().version < conn_settings->version) {
             DropOutdatedConnection(connection);
             continue;
@@ -540,12 +539,8 @@ Connection* ConnectionPool::Pop(engine::Deadline deadline) {
 
     TryCreateConnectionAsync();
 
-    {
-        std::unique_lock<engine::Mutex> lock{wait_mutex_};
-        // Wait for a connection
-        if (conn_available_.WaitUntil(lock, deadline, [&] { return queue_.pop(connection); })) {
-            return connection;
-        }
+    if (conn_consumer_.Pop(connection, deadline)) {
+        return connection;
     }
 
     if (engine::current_task::ShouldCancel()) {
@@ -568,7 +563,7 @@ Connection* ConnectionPool::Pop(engine::Deadline deadline) {
 
 void ConnectionPool::Clear() {
     Connection* connection = nullptr;
-    while (queue_.pop(connection)) {
+    while (conn_consumer_.PopNoblock(connection)) {
         delete connection;
     }
     close_task_storage_.CancelAndWait();
@@ -632,7 +627,7 @@ void ConnectionPool::DropOutdatedConnection(Connection* connection) {
 Connection* ConnectionPool::AcquireImmediate() {
     Connection* conn = nullptr;
     auto conn_settings = conn_settings_.Read();
-    while (queue_.pop(conn)) {
+    while (conn_consumer_.PopNoblock(conn)) {
         if (conn->GetSettings().version < conn_settings->version) {
             DropOutdatedConnection(conn);
             continue;
