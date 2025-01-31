@@ -37,6 +37,7 @@ components_manager:
             disable-all-pipeline-middlewares: true
             middlewares:
                 grpc-server-headers-propagator:
+                    enabled: true
 
         grpc-server-middlewares-pipeline:
 

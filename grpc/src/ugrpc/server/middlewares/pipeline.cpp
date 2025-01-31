@@ -24,9 +24,9 @@ MakeDependencies(const components::ComponentContext& context, impl::MiddlewarePi
     impl::Dependencies dependencies{};
     dependencies.reserve(pipeline_config.middlewares.size());
     for (const auto& [mname, conf] : pipeline_config.middlewares) {
-        const auto* middleware = context.FindComponentOptional<MiddlewareComponentBase>(mname);
+        const auto* middleware = context.FindComponentOptional<MiddlewareFactoryComponentBase>(mname);
         if (middleware) {
-            auto dep = middleware->GetMiddlewareDependency();
+            auto dep = middleware->GetMiddlewareDependency(utils::impl::InternalTag{});
             dep.enabled = conf.enabled;
             dependencies.emplace(mname, std::move(dep));
         } else {

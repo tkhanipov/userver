@@ -2,6 +2,7 @@
 
 #include <userver/components/component_config.hpp>
 #include <userver/components/component_context.hpp>
+#include <userver/yaml_config/merge_schemas.hpp>
 
 #include <userver/ugrpc/server/impl/exceptions.hpp>
 
@@ -61,14 +62,36 @@ void MiddlewareBase::CallRequestHook(const MiddlewareCallContext&, google::proto
 
 void MiddlewareBase::CallResponseHook(const MiddlewareCallContext&, google::protobuf::Message&) {}
 
-MiddlewareComponentBase::MiddlewareComponentBase(
+MiddlewareFactoryComponentBase::MiddlewareFactoryComponentBase(
     const components::ComponentConfig& config,
     const components::ComponentContext& context,
     MiddlewareDependencyBuilder&& dependency
 )
-    : components::ComponentBase(config, context), dependency_(std::move(dependency).Extract(config.Name())) {}
+    : components::ComponentBase(config, context),
+      dependency_(std::move(dependency).Extract(config.Name())),
+      global_config_(config.As<formats::yaml::Value>()) {}
 
-const impl::MiddlewareDependency& MiddlewareComponentBase::GetMiddlewareDependency() const { return dependency_; }
+const impl::MiddlewareDependency& MiddlewareFactoryComponentBase::GetMiddlewareDependency(utils::impl::InternalTag
+) const {
+    return dependency_;
+}
+
+const formats::yaml::Value& MiddlewareFactoryComponentBase::GetGlobalConfig(utils::impl::InternalTag) const {
+    return global_config_;
+}
+
+yaml_config::Schema MiddlewareFactoryComponentBase::GetStaticConfigSchema() {
+    return yaml_config::MergeSchemas<components::ComponentBase>(R"(
+type: object
+description: base class for grpc-server middleware
+additionalProperties: false
+properties:
+    enabled:
+        type: string
+        description: the flag to enable/disable middleware in the pipeline
+        defaultDescription: true
+)");
+}
 
 }  // namespace ugrpc::server
 

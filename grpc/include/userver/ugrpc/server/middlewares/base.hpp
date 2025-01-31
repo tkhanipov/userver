@@ -10,6 +10,9 @@
 
 #include <userver/components/component_base.hpp>
 #include <userver/utils/function_ref.hpp>
+#include <userver/utils/impl/internal_tag.hpp>
+#include <userver/yaml_config/schema.hpp>
+#include <userver/yaml_config/yaml_config.hpp>
 
 #include <userver/ugrpc/server/call.hpp>
 #include <userver/ugrpc/server/middlewares/fwd.hpp>
@@ -18,6 +21,8 @@
 USERVER_NAMESPACE_BEGIN
 
 namespace ugrpc::server {
+
+struct ServiceInfo;
 
 /// @brief Context for middleware-specific data during gRPC call
 class MiddlewareCallContext final {
@@ -83,26 +88,63 @@ public:
 /// @ingroup userver_base_classes
 ///
 /// @brief Base class for middleware component
-class MiddlewareComponentBase : public components::ComponentBase {
+class MiddlewareFactoryComponentBase : public components::ComponentBase {
 public:
-    MiddlewareComponentBase(
+    MiddlewareFactoryComponentBase(
         const components::ComponentConfig&,
         const components::ComponentContext&,
         MiddlewareDependencyBuilder&& builder = MiddlewareDependencyBuilder().InGroup<groups::User>()
     );
 
     /// @brief Returns a middleware according to the component's settings
-    virtual std::shared_ptr<MiddlewareBase> GetMiddleware() = 0;
+    ///
+    /// @param info is a info of a grpc-service
+    /// @param middleware_config config for the middleware
+    virtual std::shared_ptr<MiddlewareBase>
+    CreateMiddleware(const ServiceInfo& info, const yaml_config::YamlConfig& middleware_config) const = 0;
+
+    /// @brief This method should return the schema of a middleware configuration.
+    /// Always write `return GetStaticConfigSchema();` in this method
+    virtual yaml_config::Schema GetMiddlewareConfigSchema() const { return GetStaticConfigSchema(); }
+
+    static yaml_config::Schema GetStaticConfigSchema();
 
     /// @cond
     /// Only for internal use.
-    const impl::MiddlewareDependency& GetMiddlewareDependency() const;
+    const impl::MiddlewareDependency& GetMiddlewareDependency(utils::impl::InternalTag) const;
+
+    const formats::yaml::Value& GetGlobalConfig(utils::impl::InternalTag) const;
     /// @endcond
 
 private:
-    impl::MiddlewareDependency dependency_;
+    const impl::MiddlewareDependency dependency_;
+    const formats::yaml::Value global_config_;
+};
+
+/// @ingroup userver_middlewares
+///
+/// @brief A short-cut for defining a middleware-factory
+template <typename Middleware>
+class SimpleMiddlewareFactoryComponent final : public MiddlewareFactoryComponentBase {
+public:
+    static constexpr std::string_view kName = Middleware::kName;
+
+    SimpleMiddlewareFactoryComponent(
+        const components::ComponentConfig& config,
+        const components::ComponentContext& context
+    )
+        : MiddlewareFactoryComponentBase(config, context, MiddlewareDependencyBuilder{Middleware::kDependency}) {}
+
+private:
+    std::shared_ptr<MiddlewareBase> CreateMiddleware(const ServiceInfo&, const yaml_config::YamlConfig&)
+        const override {
+        return std::make_shared<Middleware>();
+    }
 };
 
 }  // namespace ugrpc::server
+
+template <typename Middleware>
+inline constexpr bool components::kHasValidate<ugrpc::server::SimpleMiddlewareFactoryComponent<Middleware>> = true;
 
 USERVER_NAMESPACE_END

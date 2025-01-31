@@ -10,14 +10,17 @@
 namespace sample::grpc::auth::server {
 
 Component::Component(const components::ComponentConfig& config, const components::ComponentContext& context)
-    : MiddlewareComponentBase(
+    : MiddlewareFactoryComponentBase(
           config,
           context,
           ugrpc::server::MiddlewareDependencyBuilder().InGroup<ugrpc::server::groups::Auth>()
       ),
       middleware_(std::make_shared<Middleware>()) {}
 
-std::shared_ptr<ugrpc::server::MiddlewareBase> Component::GetMiddleware() { return middleware_; }
+std::shared_ptr<ugrpc::server::MiddlewareBase>
+Component::CreateMiddleware(const ugrpc::server::ServiceInfo&, const yaml_config::YamlConfig&) const {
+    return middleware_;
+}
 
 }  // namespace sample::grpc::auth::server
 /// [gRPC middleware sample - middleware registration]

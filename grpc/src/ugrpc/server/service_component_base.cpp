@@ -2,14 +2,18 @@
 
 #include <userver/components/component_config.hpp>
 #include <userver/components/component_context.hpp>
+#include <userver/formats/common/merge.hpp>
+#include <userver/formats/yaml/value_builder.hpp>
 #include <userver/utils/assert.hpp>
 #include <userver/yaml_config/merge_schemas.hpp>
+#include <userver/yaml_config/yaml_config.hpp>
 
 #include <ugrpc/server/impl/parse_config.hpp>
 #include <userver/ugrpc/server/middlewares/base.hpp>
 #include <userver/ugrpc/server/middlewares/pipeline.hpp>
 #include <userver/ugrpc/server/server_component.hpp>
 #include <userver/ugrpc/server/service_base.hpp>
+#include <userver/yaml_config/impl/validate_static_config.hpp>
 
 USERVER_NAMESPACE_BEGIN
 
@@ -21,12 +25,33 @@ ServiceComponentBase::ServiceComponentBase(
 )
     : ComponentBase(config, context),
       server_(context.FindComponent<ServerComponent>()),
-      config_(server_.ParseServiceConfig(config, context)) {
+      config_(server_.ParseServiceConfig(config, context)),
+      info_{config.Name()} {
     const auto conf = config.As<impl::MiddlewareServiceConfig>();
-    for (const auto& mid :
-         context.FindComponent<MiddlewarePipelineComponent>().GetPipeline().GetPerServiceMiddlewares(conf)) {
-        config_.middlewares.push_back(context.FindComponent<MiddlewareComponentBase>(mid).GetMiddleware());
+    const auto& middlewares = config["middlewares"];
+    const auto& pipeline = context.FindComponent<MiddlewarePipelineComponent>().GetPipeline();
+
+    for (const auto& mid : pipeline.GetPerServiceMiddlewares(conf)) {
+        const auto& base = context.FindComponent<MiddlewareFactoryComponentBase>(mid);
+        CreateAndPushMiddleware(base, middlewares[mid]);
     }
+}
+
+void ServiceComponentBase::CreateAndPushMiddleware(
+    const MiddlewareFactoryComponentBase& base,
+    const yaml_config::YamlConfig& middleware
+) {
+    formats::yaml::ValueBuilder builder{base.GetGlobalConfig(utils::impl::InternalTag{})};
+
+    if (!middleware.IsMissing()) {
+        formats::common::Merge(builder, middleware.As<formats::yaml::Value>());
+        auto schema = base.GetMiddlewareConfigSchema();
+        schema.properties->erase("load-enabled");
+        yaml_config::impl::Validate(middleware, schema);
+    }
+    config_.middlewares.push_back(
+        base.CreateMiddleware(info_, yaml_config::YamlConfig{builder.ExtractValue(), formats::yaml::Value{}})
+    );
 }
 
 void ServiceComponentBase::RegisterService(ServiceBase& service) {
@@ -64,7 +89,7 @@ properties:
         additionalProperties:
             type: object
             description: a middleware config
-            additionalProperties: false
+            additionalProperties: true
             properties:
                 enabled:
                     type: boolean

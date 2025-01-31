@@ -4,7 +4,7 @@
 /// @brief @copybrief
 /// ugrpc::server::middlewares::deadline_propagation::Component
 
-#include <userver/ugrpc/server/middlewares/base.hpp>
+#include <userver/ugrpc/server/middlewares/deadline_propagation/middleware.hpp>
 
 USERVER_NAMESPACE_BEGIN
 
@@ -26,22 +26,9 @@ namespace ugrpc::server::middlewares::deadline_propagation {
 
 // clang-format on
 
-class Component final : public MiddlewareComponentBase {
-public:
-    /// @ingroup userver_component_names
-    /// @brief The default name of
-    // ugrpc::server::middlewares::deadline_propagation::Component
-    static constexpr std::string_view kName = "grpc-server-deadline-propagation";
-
-    Component(const components::ComponentConfig& config, const components::ComponentContext& context);
-
-    std::shared_ptr<MiddlewareBase> GetMiddleware() override;
-};
+using Component = SimpleMiddlewareFactoryComponent<Middleware>;
 
 }  // namespace ugrpc::server::middlewares::deadline_propagation
-
-template <>
-inline constexpr bool components::kHasValidate<ugrpc::server::middlewares::deadline_propagation::Component> = true;
 
 template <>
 inline constexpr auto components::kConfigFileMode<ugrpc::server::middlewares::deadline_propagation::Component> =

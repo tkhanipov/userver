@@ -92,7 +92,7 @@ void AddEdgesForGroup(Graph& graph, const MiddlewareDependency& dep) {
 
 template <typename Group>
 void AddEdgesGroup(Graph& graph) {
-    const MiddlewareDependency dep = MiddlewareDependencyBuilder{Group::dependency}.Extract(Group::kName);
+    const MiddlewareDependency dep = MiddlewareDependencyBuilder{Group::kDependency}.Extract(Group::kName);
     AddEdgesForGroup<Group>(graph, dep);
 }
 

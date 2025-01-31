@@ -21,7 +21,7 @@ components_manager:
             port: 8091
 
         grpc-server-logging:
-            msg-size-log-limit: 10
+            msg-size-log-limit: 15
 
         congestion-control:
 
@@ -37,6 +37,7 @@ components_manager:
             disable-all-pipeline-middlewares: true
             middlewares:
                 grpc-server-logging:
+                    msg-size-log-limit: 10
                     enabled: true
                 my-middleware-server:
                     enabled: true

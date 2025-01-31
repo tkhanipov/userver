@@ -7,6 +7,7 @@
 
 #include <userver/components/component_base.hpp>
 #include <userver/engine/task/task_processor_fwd.hpp>
+#include <userver/yaml_config/fwd.hpp>
 
 #include <userver/ugrpc/server/middlewares/fwd.hpp>
 #include <userver/ugrpc/server/service_base.hpp>
@@ -17,6 +18,12 @@ namespace ugrpc::server {
 
 class ServerComponent;
 class GenericServiceBase;
+class MiddlewareFactoryComponentBase;
+
+/// @brief Service info for the middleware
+struct ServiceInfo final {
+    std::string full_service_name{};
+};
 
 // clang-format off
 
@@ -49,9 +56,13 @@ protected:
     void RegisterService(GenericServiceBase& service);
 
 private:
+    void
+    CreateAndPushMiddleware(const MiddlewareFactoryComponentBase& base, const yaml_config::YamlConfig& middlewares);
+
     ServerComponent& server_;
     ServiceConfig config_;
     std::atomic<bool> registered_{false};
+    ServiceInfo info_{};
 };
 
 namespace impl {

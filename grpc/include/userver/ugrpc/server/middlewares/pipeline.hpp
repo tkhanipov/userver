@@ -150,7 +150,7 @@ private:
 namespace impl {
 
 template <typename T>
-using IsGroup = decltype(T::dependency);
+using IsGroup = decltype(T::kDependency);
 
 template <typename T>
 constexpr bool kIsGroup = std::is_same_v<meta::DetectedType<IsGroup, T>, const MiddlewareDependencyBuilder>;
