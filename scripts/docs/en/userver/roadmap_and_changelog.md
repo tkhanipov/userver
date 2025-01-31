@@ -56,6 +56,7 @@ Changelog news also go to the
 * Optimizations
   * Speed up configuration reads on creating new PostgreSQL connections.
   * utils::PeriodicTask now calls RCU Read two times less on each iteration.
+  * Reduced memory allocations count on each Redis request.
 
 * Build
   * Fixed build with `USERVER_FEATURE_JEMALLOC=ON`. Many thanks to [Aleksey Ignatiev](https://github.com/ae-ignatiev)
@@ -70,7 +71,9 @@ Changelog news also go to the
   * Added `ubuntu-22.04-userver-pg-dev` image with all the tools for development. Planning to switch to Ubuntu-24.04 and
     leave only 2 containers: with build dependencies to build userver, and with prebuild userver.
   * Added missing fmt11 headers. Thanks to [Pavel Sidorovich](https://github.com/RayeS2070) for the PR!
-  * Added `USERVER_USE_STATIC_LIBS` to link third-party libraries statically. 
+  * Added `USERVER_USE_STATIC_LIBS` to link third-party libraries statically.
+  * Support `pacman` epoch in CMake version detection. Many thanks to [Konstantin Goncharik](https://github.com/botanegg)
+    for the PR.
 
 * Documentation
   * Significant update of the @ref scripts/docs/en/userver/build/build.md
