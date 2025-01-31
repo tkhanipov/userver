@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include <fmt/ranges.h>
 #include <boost/container/small_vector.hpp>
 
 #include <userver/logging/fwd.hpp>
