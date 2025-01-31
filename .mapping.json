@@ -402,6 +402,7 @@
   "cmake/SetupCURL.cmake":"taxi/uservices/userver/cmake/SetupCURL.cmake",
   "cmake/SetupClickhouseCPP.cmake":"taxi/uservices/userver/cmake/SetupClickhouseCPP.cmake",
   "cmake/SetupCryptoPP.cmake":"taxi/uservices/userver/cmake/SetupCryptoPP.cmake",
+  "cmake/SetupDebugInfoCompression.cmake":"taxi/uservices/userver/cmake/SetupDebugInfoCompression.cmake",
   "cmake/SetupFmt.cmake":"taxi/uservices/userver/cmake/SetupFmt.cmake",
   "cmake/SetupGBench.cmake":"taxi/uservices/userver/cmake/SetupGBench.cmake",
   "cmake/SetupGTest.cmake":"taxi/uservices/userver/cmake/SetupGTest.cmake",
