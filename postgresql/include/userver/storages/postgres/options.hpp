@@ -4,6 +4,7 @@
 /// @brief Options
 
 #include <chrono>
+#include <cstdint>
 #include <iosfwd>
 #include <optional>
 #include <string>
@@ -21,7 +22,7 @@ namespace storages::postgres {
 /*! [Isolation levels] */
 /// @brief SQL transaction isolation level
 /// @see https://www.postgresql.org/docs/current/static/sql-set-transaction.html
-enum class IsolationLevel {
+enum class IsolationLevel : std::uint16_t {
     kReadCommitted,   //!< READ COMMITTED
     kRepeatableRead,  //!< REPEATABLE READ
     kSerializable,    //!< SERIALIZABLE
@@ -52,7 +53,7 @@ std::ostream& operator<<(std::ostream&, IsolationLevel);
 /// @see https://www.postgresql.org/docs/current/static/sql-set-transaction.html
 struct TransactionOptions {
     /*! [Transaction modes] */
-    enum Mode {
+    enum Mode : std::uint16_t {
         kReadWrite = 0,
         kReadOnly = 1,
         kDeferrable = 3  //!< Deferrable transaction is read only
@@ -73,10 +74,10 @@ struct TransactionOptions {
     static constexpr TransactionOptions Deferrable() { return {IsolationLevel::kSerializable, kDeferrable}; }
 };
 
-constexpr inline bool operator==(const TransactionOptions& lhs, const TransactionOptions& rhs) {
+constexpr inline bool operator==(TransactionOptions lhs, TransactionOptions rhs) {
     return lhs.isolation_level == rhs.isolation_level && lhs.mode == rhs.mode;
 }
-const std::string& BeginStatement(const TransactionOptions&);
+std::string_view BeginStatement(TransactionOptions);
 
 /// A structure to control timeouts for PosrgreSQL queries
 ///

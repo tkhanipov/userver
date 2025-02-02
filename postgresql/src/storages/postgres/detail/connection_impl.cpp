@@ -391,9 +391,9 @@ void ConnectionImpl::Begin(
     stats_.work_start_time = SteadyClock::now();
     ++stats_.trx_total;
     if (IsPipelineActive()) {
-        SendCommandNoPrepare(BeginStatement(options), MakeCurrentDeadline());
+        SendCommandNoPrepare(Query{std::string{BeginStatement(options)}}, MakeCurrentDeadline());
     } else {
-        ExecuteCommandNoPrepare(BeginStatement(options), MakeCurrentDeadline());
+        ExecuteCommandNoPrepare(Query{std::string{BeginStatement(options)}}, MakeCurrentDeadline());
     }
     if (trx_cmd_ctl) {
         SetTransactionCommandControl(*trx_cmd_ctl);

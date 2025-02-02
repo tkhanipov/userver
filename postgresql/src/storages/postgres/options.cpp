@@ -1,6 +1,6 @@
 #include <userver/storages/postgres/options.hpp>
 
-#include <unordered_map>
+#include <userver/utils/trivial_map.hpp>
 
 USERVER_NAMESPACE_BEGIN
 
@@ -19,34 +19,53 @@ struct HashOptions {
     }
 };
 
-const std::unordered_map<TransactionOptions, std::string, HashOptions> kStatements{
-    {{IsolationLevel::kReadCommitted, TransactionOptions::kReadWrite},
-     "begin isolation level read committed, read write"},
-    {{IsolationLevel::kRepeatableRead, TransactionOptions::kReadWrite},
-     "begin isolation level repeatable read, read write"},
-    {{IsolationLevel::kSerializable, TransactionOptions::kReadWrite}, "begin isolation level serializable, read write"},
-    {{IsolationLevel::kReadUncommitted, TransactionOptions::kReadWrite},
-     "begin isolation level read uncommitted, read write"},
-    {{IsolationLevel::kReadCommitted, TransactionOptions::kReadOnly},
-     "begin isolation level read committed, read only"},
-    {{IsolationLevel::kRepeatableRead, TransactionOptions::kReadOnly},
-     "begin isolation level repeatable read, read only"},
-    {{IsolationLevel::kSerializable, TransactionOptions::kReadOnly}, "begin isolation level serializable, read only"},
-    {{IsolationLevel::kReadUncommitted, TransactionOptions::kReadOnly},
-     "begin isolation level read uncommitted, read only"},
-    {{IsolationLevel::kSerializable, TransactionOptions::kDeferrable},
-     "begin isolation level serializable, read only, deferrable"}};
+constexpr utils::TrivialBiMap kStatements = [](auto selector) {
+    return selector()
 
-const std::string kDefaultBeginStatement = "begin";
+        .Case(
+            TransactionOptions{IsolationLevel::kReadCommitted, TransactionOptions::kReadWrite},
+            "begin isolation level read committed, read write"
+        )
+        .Case(
+            TransactionOptions{IsolationLevel::kRepeatableRead, TransactionOptions::kReadWrite},
+            "begin isolation level repeatable read, read write"
+        )
+        .Case(
+            TransactionOptions{IsolationLevel::kSerializable, TransactionOptions::kReadWrite},
+            "begin isolation level serializable, read write"
+        )
+        .Case(
+            TransactionOptions{IsolationLevel::kReadUncommitted, TransactionOptions::kReadWrite},
+            "begin isolation level read uncommitted, read write"
+        )
+        .Case(
+            TransactionOptions{IsolationLevel::kReadCommitted, TransactionOptions::kReadOnly},
+            "begin isolation level read committed, read only"
+        )
+        .Case(
+            TransactionOptions{IsolationLevel::kRepeatableRead, TransactionOptions::kReadOnly},
+            "begin isolation level repeatable read, read only"
+        )
+        .Case(
+            TransactionOptions{IsolationLevel::kSerializable, TransactionOptions::kReadOnly},
+            "begin isolation level serializable, read only"
+        )
+        .Case(
+            TransactionOptions{IsolationLevel::kReadUncommitted, TransactionOptions::kReadOnly},
+            "begin isolation level read uncommitted, read only"
+        )
+        .Case(
+            TransactionOptions{IsolationLevel::kSerializable, TransactionOptions::kDeferrable},
+            "begin isolation level serializable, read only, deferrable"
+        );
+};
+
+constexpr std::string_view kDefaultBeginStatement = "begin";
 
 }  // namespace
 
-const std::string& BeginStatement(const TransactionOptions& opts) {
-    auto f = kStatements.find(opts);
-    if (f != kStatements.end()) {
-        return f->second;
-    }
-    return kDefaultBeginStatement;
+std::string_view BeginStatement(TransactionOptions opts) {
+    return kStatements.TryFindByFirst(opts).value_or(kDefaultBeginStatement);
 }
 
 OptionalCommandControl GetHandlerOptionalCommandControl(
