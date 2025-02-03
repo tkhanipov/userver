@@ -15,7 +15,11 @@ USERVER_NAMESPACE_BEGIN
 namespace ugrpc::server::middlewares::congestion_control {
 
 Component::Component(const components::ComponentConfig& config, const components::ComponentContext& context)
-    : MiddlewareFactoryComponentBase(config, context, MiddlewareDependencyBuilder().InGroup<groups::Core>()),
+    : MiddlewareFactoryComponentBase(
+          config,
+          context,
+          ugrpc::middlewares::MiddlewareDependencyBuilder().InGroup<groups::Core>()
+      ),
       middleware_(std::make_shared<Middleware>()) {
     auto& cc_component = context.FindComponent<USERVER_NAMESPACE::congestion_control::Component>();
 

@@ -93,7 +93,8 @@ public:
     MiddlewareFactoryComponentBase(
         const components::ComponentConfig&,
         const components::ComponentContext&,
-        MiddlewareDependencyBuilder&& builder = MiddlewareDependencyBuilder().InGroup<groups::User>()
+        ugrpc::middlewares::MiddlewareDependencyBuilder&& builder =
+            ugrpc::middlewares::MiddlewareDependencyBuilder().InGroup<groups::User>()
     );
 
     /// @brief Returns a middleware according to the component's settings
@@ -111,13 +112,13 @@ public:
 
     /// @cond
     /// Only for internal use.
-    const impl::MiddlewareDependency& GetMiddlewareDependency(utils::impl::InternalTag) const;
+    const ugrpc::middlewares::impl::MiddlewareDependency& GetMiddlewareDependency(utils::impl::InternalTag) const;
 
     const formats::yaml::Value& GetGlobalConfig(utils::impl::InternalTag) const;
     /// @endcond
 
 private:
-    const impl::MiddlewareDependency dependency_;
+    const ugrpc::middlewares::impl::MiddlewareDependency dependency_;
     const formats::yaml::Value global_config_;
 };
 
@@ -133,7 +134,11 @@ public:
         const components::ComponentConfig& config,
         const components::ComponentContext& context
     )
-        : MiddlewareFactoryComponentBase(config, context, MiddlewareDependencyBuilder{Middleware::kDependency}) {}
+        : MiddlewareFactoryComponentBase(
+              config,
+              context,
+              ugrpc::middlewares::MiddlewareDependencyBuilder{Middleware::kDependency}
+          ) {}
 
 private:
     std::shared_ptr<MiddlewareBase> CreateMiddleware(const ServiceInfo&, const yaml_config::YamlConfig&)

@@ -5,9 +5,9 @@
 #include <userver/yaml_config/merge_schemas.hpp>
 
 #include <ugrpc/server/middlewares/log/middleware.hpp>
+#include <userver/ugrpc/middlewares/pipeline.hpp>
 #include <userver/ugrpc/server/middlewares/groups.hpp>
 #include <userver/ugrpc/server/middlewares/log/component.hpp>
-#include <userver/ugrpc/server/middlewares/pipeline.hpp>
 
 USERVER_NAMESPACE_BEGIN
 
@@ -23,7 +23,11 @@ Settings Parse(const yaml_config::YamlConfig& config, formats::parse::To<Setting
 }
 
 Component::Component(const components::ComponentConfig& config, const components::ComponentContext& context)
-    : MiddlewareFactoryComponentBase(config, context, MiddlewareDependencyBuilder().InGroup<groups::Logging>()) {}
+    : MiddlewareFactoryComponentBase(
+          config,
+          context,
+          ugrpc::middlewares::MiddlewareDependencyBuilder().InGroup<groups::Logging>()
+      ) {}
 
 Component::~Component() = default;
 

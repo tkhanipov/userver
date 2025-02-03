@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <ugrpc/server/impl/topology_sort.hpp>
+#include <ugrpc/impl/topology_sort.hpp>
 
 #include <userver/utest/assert_macros.hpp>
 
@@ -14,7 +14,7 @@ TEST(TopologySort, Basic) {
         {"grpc-server-headers-propagator", {"grpc-server-logging"}},
         {"grpc-server-logging", {}},
     };
-    auto sort = ugrpc::server::impl::BuildTopologySortOfMiddlewares(std::move(graph));
+    auto sort = ugrpc::middlewares::impl::BuildTopologySortOfMiddlewares(std::move(graph));
     std::vector<std::string> expected{
         "grpc-server-logging",
         "grpc-server-baggage",
@@ -38,10 +38,10 @@ TEST(TopologySort, Throw) {
         {"B", {"A"}},
         {"D", {"A", "B"}},
     };
-    UASSERT_THROW(ugrpc::server::impl::BuildTopologySortOfMiddlewares(std::move(graph)), std::runtime_error);
+    UASSERT_THROW(ugrpc::middlewares::impl::BuildTopologySortOfMiddlewares(std::move(graph)), std::runtime_error);
     graph["A"] = {};
     graph["C"] = {};
-    auto sort = ugrpc::server::impl::BuildTopologySortOfMiddlewares(std::move(graph));
+    auto sort = ugrpc::middlewares::impl::BuildTopologySortOfMiddlewares(std::move(graph));
     std::vector<std::string> expected{"A", "C", "B", "D"};
     ASSERT_EQ(sort, expected);
 }
@@ -64,7 +64,7 @@ TEST(TopologySort, TwoSubPath) {
         {"C", {"A"}},
         {"D", {"E"}},
     };
-    auto sort = ugrpc::server::impl::BuildTopologySortOfMiddlewares(std::move(graph));
+    auto sort = ugrpc::middlewares::impl::BuildTopologySortOfMiddlewares(std::move(graph));
     std::vector<std::string> expected{"A", "E", "B", "C", "D"};
     ASSERT_EQ(sort, expected);
 }

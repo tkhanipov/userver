@@ -5,7 +5,7 @@
 /// There are groups of middlewares to build a pipeline.
 /// @see @ref scripts/docs/en/userver/grpc_server_middlewares.md
 
-#include <userver/ugrpc/server/middlewares/pipeline.hpp>
+#include <userver/ugrpc/middlewares/pipeline.hpp>
 
 USERVER_NAMESPACE_BEGIN
 
@@ -16,7 +16,7 @@ namespace ugrpc::server::groups {
 /// @brief The first group in the pipeline.
 struct PreCore final {
     static constexpr std::string_view kName = "pre-core";
-    static inline const auto kDependency = MiddlewareDependencyBuilder();
+    static inline const auto kDependency = middlewares::MiddlewareDependencyBuilder();
 };
 
 /// @brief The Group to work wih logging. Is located after PreCore.
@@ -25,13 +25,13 @@ struct PreCore final {
 /// ugrpc::server::middlewares::log::Component.
 struct Logging final {
     static constexpr std::string_view kName = "logging";
-    static inline const auto kDependency = MiddlewareDependencyBuilder().After<PreCore>();
+    static inline const auto kDependency = middlewares::MiddlewareDependencyBuilder().After<PreCore>();
 };
 
 /// @brief The Group for authentication middlewares. Is located after `Logging`.
 struct Auth final {
     static constexpr std::string_view kName = "auth";
-    static inline const auto kDependency = MiddlewareDependencyBuilder().After<Logging>();
+    static inline const auto kDependency = middlewares::MiddlewareDependencyBuilder().After<Logging>();
 };
 
 /// @brief The core group of middlewares. Is located after `Auth`.
@@ -41,13 +41,13 @@ struct Auth final {
 /// * ugrpc::server::middlewares::deadline_propagation::Component
 struct Core final {
     static constexpr std::string_view kName = "core";
-    static inline const auto kDependency = MiddlewareDependencyBuilder().After<Auth>();
+    static inline const auto kDependency = middlewares::MiddlewareDependencyBuilder().After<Auth>();
 };
 
 /// @brief The group is located after `Core`.
 struct PostCore final {
     static constexpr std::string_view kName = "post-core";
-    static inline const auto kDependency = MiddlewareDependencyBuilder().After<Core>();
+    static inline const auto kDependency = middlewares::MiddlewareDependencyBuilder().After<Core>();
 };
 
 /// @brief The group for user middlewares - the last group in pipeline. It group used by default.
@@ -57,7 +57,7 @@ struct PostCore final {
 /// * ugrpc::server::middlewares::headers_propagator::Component
 struct User final {
     static constexpr std::string_view kName = "user";
-    static inline const auto kDependency = MiddlewareDependencyBuilder().After<PostCore>();
+    static inline const auto kDependency = middlewares::MiddlewareDependencyBuilder().After<PostCore>();
 };
 
 }  // namespace ugrpc::server::groups

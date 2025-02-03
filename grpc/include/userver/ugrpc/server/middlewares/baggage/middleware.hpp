@@ -13,7 +13,7 @@ public:
     static constexpr std::string_view kName = "grpc-server-baggage";
 
     /// @brief dependency of this middleware
-    static inline const auto kDependency = MiddlewareDependencyBuilder();
+    static inline const auto kDependency = ugrpc::middlewares::MiddlewareDependencyBuilder();
 
     void Handle(MiddlewareCallContext& context) const override;
 };

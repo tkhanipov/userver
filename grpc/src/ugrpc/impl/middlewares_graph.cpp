@@ -1,16 +1,16 @@
-#include <ugrpc/server/impl/middlewares_graph.hpp>
+#include <ugrpc/impl/middlewares_graph.hpp>
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
-#include <ugrpc/server/impl/topology_sort.hpp>
+#include <ugrpc/impl/topology_sort.hpp>
 
 #include <userver/ugrpc/server/middlewares/groups.hpp>
 #include <userver/utils/text_light.hpp>
 
 USERVER_NAMESPACE_BEGIN
 
-namespace ugrpc::server::impl {
+namespace ugrpc::middlewares::impl {
 
 namespace {
 
@@ -141,12 +141,12 @@ MiddlewareOrderedList BuildPipeline(Dependencies&& dependencies) {
 
     Graph graph{};
 
-    AddEdgesGroup<groups::PreCore>(graph);
-    AddEdgesGroup<groups::Logging>(graph);
-    AddEdgesGroup<groups::Auth>(graph);
-    AddEdgesGroup<groups::Core>(graph);
-    AddEdgesGroup<groups::PostCore>(graph);
-    AddEdgesGroup<groups::User>(graph);
+    AddEdgesGroup<server::groups::PreCore>(graph);
+    AddEdgesGroup<server::groups::Logging>(graph);
+    AddEdgesGroup<server::groups::Auth>(graph);
+    AddEdgesGroup<server::groups::Core>(graph);
+    AddEdgesGroup<server::groups::PostCore>(graph);
+    AddEdgesGroup<server::groups::User>(graph);
 
     for (const auto& [name, dep] : dependencies) {
         AddEdges(graph, dep);
@@ -169,6 +169,6 @@ MiddlewareOrderedList BuildPipeline(Dependencies&& dependencies) {
     return list;
 }
 
-}  // namespace ugrpc::server::impl
+}  // namespace ugrpc::middlewares::impl
 
 USERVER_NAMESPACE_END

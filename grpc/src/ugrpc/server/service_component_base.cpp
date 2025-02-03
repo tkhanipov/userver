@@ -9,8 +9,8 @@
 #include <userver/yaml_config/yaml_config.hpp>
 
 #include <ugrpc/server/impl/parse_config.hpp>
+#include <userver/ugrpc/middlewares/pipeline.hpp>
 #include <userver/ugrpc/server/middlewares/base.hpp>
-#include <userver/ugrpc/server/middlewares/pipeline.hpp>
 #include <userver/ugrpc/server/server_component.hpp>
 #include <userver/ugrpc/server/service_base.hpp>
 #include <userver/yaml_config/impl/validate_static_config.hpp>
@@ -27,9 +27,9 @@ ServiceComponentBase::ServiceComponentBase(
       server_(context.FindComponent<ServerComponent>()),
       config_(server_.ParseServiceConfig(config, context)),
       info_{config.Name()} {
-    const auto conf = config.As<impl::MiddlewareServiceConfig>();
+    const auto conf = config.As<middlewares::impl::MiddlewareServiceConfig>();
     const auto& middlewares = config["middlewares"];
-    const auto& pipeline = context.FindComponent<MiddlewarePipelineComponent>().GetPipeline();
+    const auto& pipeline = context.FindComponent<middlewares::MiddlewarePipelineComponent>().GetPipeline();
 
     for (const auto& mid : pipeline.GetPerServiceMiddlewares(conf)) {
         const auto& base = context.FindComponent<MiddlewareFactoryComponentBase>(mid);

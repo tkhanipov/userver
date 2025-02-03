@@ -1,4 +1,4 @@
-#include <userver/ugrpc/server/middlewares/pipeline.hpp>
+#include <userver/ugrpc/middlewares/pipeline.hpp>
 
 #include <fmt/format.h>
 
@@ -7,13 +7,13 @@
 #include <userver/utils/assert.hpp>
 #include <userver/yaml_config/merge_schemas.hpp>
 
-#include <ugrpc/server/impl/middlewares_graph.hpp>
+#include <ugrpc/impl/middlewares_graph.hpp>
 #include <userver/ugrpc/server/middlewares/base.hpp>
 #include <userver/ugrpc/server/middlewares/groups.hpp>
 
 USERVER_NAMESPACE_BEGIN
 
-namespace ugrpc::server {
+namespace ugrpc::middlewares {
 
 namespace {
 
@@ -24,7 +24,7 @@ MakeDependencies(const components::ComponentContext& context, impl::MiddlewarePi
     impl::Dependencies dependencies{};
     dependencies.reserve(pipeline_config.middlewares.size());
     for (const auto& [mname, conf] : pipeline_config.middlewares) {
-        const auto* middleware = context.FindComponentOptional<MiddlewareFactoryComponentBase>(mname);
+        const auto* middleware = context.FindComponentOptional<server::MiddlewareFactoryComponentBase>(mname);
         if (middleware) {
             auto dep = middleware->GetMiddlewareDependency(utils::impl::InternalTag{});
             dep.enabled = conf.enabled;
@@ -123,6 +123,6 @@ impl::MiddlewareDependency MiddlewareDependencyBuilder::Extract(std::string_view
     return std::move(dep_);
 }
 
-}  // namespace ugrpc::server
+}  // namespace ugrpc::middlewares
 
 USERVER_NAMESPACE_END

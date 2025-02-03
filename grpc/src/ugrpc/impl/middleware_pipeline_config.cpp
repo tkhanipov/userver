@@ -1,10 +1,10 @@
-#include <userver/ugrpc/server/impl/middleware_pipeline_config.hpp>
+#include <userver/ugrpc/impl/middleware_pipeline_config.hpp>
 
 #include <userver/yaml_config/yaml_config.hpp>
 
 USERVER_NAMESPACE_BEGIN
 
-namespace ugrpc::server::impl {
+namespace ugrpc::middlewares::impl {
 
 MiddlewarePipelineConfig Parse(const yaml_config::YamlConfig& value, formats::parse::To<MiddlewarePipelineConfig>) {
     MiddlewarePipelineConfig config;
@@ -43,6 +43,6 @@ bool operator==(const MiddlewareEnabled& l, const MiddlewareEnabled& r) {
     return l.name == r.name && l.enabled == r.enabled;
 }
 
-}  // namespace ugrpc::server::impl
+}  // namespace ugrpc::middlewares::impl
 
 USERVER_NAMESPACE_END

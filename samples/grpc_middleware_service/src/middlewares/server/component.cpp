@@ -13,7 +13,7 @@ Component::Component(const components::ComponentConfig& config, const components
     : MiddlewareFactoryComponentBase(
           config,
           context,
-          ugrpc::server::MiddlewareDependencyBuilder().InGroup<ugrpc::server::groups::Auth>()
+          ugrpc::middlewares::MiddlewareDependencyBuilder().InGroup<ugrpc::server::groups::Auth>()
       ),
       middleware_(std::make_shared<Middleware>()) {}
 

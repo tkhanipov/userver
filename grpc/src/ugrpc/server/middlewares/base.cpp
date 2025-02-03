@@ -65,13 +65,14 @@ void MiddlewareBase::CallResponseHook(const MiddlewareCallContext&, google::prot
 MiddlewareFactoryComponentBase::MiddlewareFactoryComponentBase(
     const components::ComponentConfig& config,
     const components::ComponentContext& context,
-    MiddlewareDependencyBuilder&& dependency
+    middlewares::MiddlewareDependencyBuilder&& dependency
 )
     : components::ComponentBase(config, context),
       dependency_(std::move(dependency).Extract(config.Name())),
       global_config_(config.As<formats::yaml::Value>()) {}
 
-const impl::MiddlewareDependency& MiddlewareFactoryComponentBase::GetMiddlewareDependency(utils::impl::InternalTag
+const middlewares::impl::MiddlewareDependency& MiddlewareFactoryComponentBase::GetMiddlewareDependency(
+    utils::impl::InternalTag
 ) const {
     return dependency_;
 }
