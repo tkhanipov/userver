@@ -163,7 +163,7 @@ void CheckQueryParameters(const std::string& statement, const QueryParameters& p
     }
 }
 
-constexpr std::string_view kCommands[] = {
+constexpr USERVER_NAMESPACE::utils::StringLiteral kCommands[] = {
     "select",
     "insert",
     "update",

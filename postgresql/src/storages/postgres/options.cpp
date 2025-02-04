@@ -8,20 +8,8 @@ namespace storages::postgres {
 
 namespace {
 
-struct HashOptions {
-    std::size_t operator()(const TransactionOptions& opts) const {
-        using isolation_type = std::underlying_type<IsolationLevel>::type;
-        using mode_type = std::underlying_type<TransactionOptions::Mode>::type;
-        auto res = std::hash<isolation_type>()(static_cast<isolation_type>(opts.isolation_level));
-        res <<= 1;
-        res |= std::hash<mode_type>()(opts.mode);
-        return res;
-    }
-};
-
 constexpr utils::TrivialBiMap kStatements = [](auto selector) {
     return selector()
-
         .Case(
             TransactionOptions{IsolationLevel::kReadCommitted, TransactionOptions::kReadWrite},
             "begin isolation level read committed, read write"
@@ -60,11 +48,11 @@ constexpr utils::TrivialBiMap kStatements = [](auto selector) {
         );
 };
 
-constexpr std::string_view kDefaultBeginStatement = "begin";
+constexpr utils::StringLiteral kDefaultBeginStatement = "begin";
 
 }  // namespace
 
-std::string_view BeginStatement(TransactionOptions opts) {
+USERVER_NAMESPACE::utils::StringLiteral BeginStatement(TransactionOptions opts) noexcept {
     return kStatements.TryFindByFirst(opts).value_or(kDefaultBeginStatement);
 }
 

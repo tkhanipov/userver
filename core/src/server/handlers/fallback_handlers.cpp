@@ -18,7 +18,7 @@ constexpr utils::TrivialBiMap kFallbackMap = [](auto selector) {
 }
 
 std::string_view ToString(FallbackHandler fallback) {
-    return kFallbackMap.TryFindBySecond(fallback).value_or("unknown");
+    return kFallbackMap.TryFindBySecond(fallback).value_or(utils::StringLiteral{"unknown"});
 }
 
 FallbackHandler FallbackHandlerFromString(std::string_view fallback_str) {

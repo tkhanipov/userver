@@ -1,5 +1,7 @@
 #include "span_impl.hpp"
 
+#include <unordered_map>
+
 #include <boost/container/small_vector.hpp>
 
 #include <userver/formats/json/string_builder.hpp>
@@ -20,24 +22,6 @@ namespace jaeger {
 struct OpentracingTag {
     std::string_view opentracing_name;
     std::string_view type;
-};
-
-constexpr utils::TrivialBiMap kGetOpentracingTags = [](auto selector) {
-    using Tag = OpentracingTag;
-    return selector()
-        .Case(kHttpStatusCode, Tag{"http.status_code", "int64"})
-        .Case(kErrorFlag, Tag{"error", "bool"})
-        .Case(kHttpMethod, Tag{"http.method", "string"})
-        .Case(kHttpUrl, Tag{"http.url", "string"})
-
-        .Case(kDatabaseType, Tag{"db.type", "string"})
-        .Case(kDatabaseStatement, Tag{"db.statement", "string"})
-        .Case(kDatabaseInstance, Tag{"db.instance", "string"})
-        .Case(kDatabaseStatementName, Tag{"db.statement_name", "string"})
-        .Case(kDatabaseCollection, Tag{"db.collection", "string"})
-        .Case(kDatabaseStatementDescription, Tag{"db.query_description", "string"})
-
-        .Case(kPeerAddress, Tag{"peer.address", "string"});
 };
 
 struct LogExtraValueVisitor {
@@ -124,10 +108,27 @@ void Span::Impl::DoLogOpenTracing(logging::impl::TagWriter writer) const {
 }
 
 void Span::Impl::AddOpentracingTags(formats::json::StringBuilder& output, const logging::LogExtra& input) {
+    using OpentracingTag = jaeger::OpentracingTag;
+    static const std::unordered_map<std::string_view, OpentracingTag> kGetOpentracingTags = {
+        {kHttpStatusCode, OpentracingTag{"http.status_code", "int64"}},
+        {kErrorFlag, OpentracingTag{"error", "bool"}},
+        {kHttpMethod, OpentracingTag{"http.method", "string"}},
+        {kHttpUrl, OpentracingTag{"http.url", "string"}},
+
+        {kDatabaseType, OpentracingTag{"db.type", "string"}},
+        {kDatabaseStatement, OpentracingTag{"db.statement", "string"}},
+        {kDatabaseInstance, OpentracingTag{"db.instance", "string"}},
+        {kDatabaseStatementName, OpentracingTag{"db.statement_name", "string"}},
+        {kDatabaseCollection, OpentracingTag{"db.collection", "string"}},
+        {kDatabaseStatementDescription, OpentracingTag{"db.query_description", "string"}},
+
+        {kPeerAddress, OpentracingTag{"peer.address", "string"}},
+    };
+
     for (const auto& [key, value] : *input.extra_) {
-        const auto tag_it = jaeger::kGetOpentracingTags.TryFind(key);
-        if (tag_it) {
-            const auto& tag = *tag_it;
+        const auto tag_it = kGetOpentracingTags.find(key);
+        if (tag_it != kGetOpentracingTags.cend()) {
+            const auto& tag = tag_it->second;
             jaeger::GetTagObject(output, tag.opentracing_name, value.GetValue(), tag.type);
         }
     }

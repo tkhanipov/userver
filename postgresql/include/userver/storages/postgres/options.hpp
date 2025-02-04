@@ -14,6 +14,7 @@
 #include <userver/storages/postgres/postgres_fwd.hpp>
 #include <userver/utils/impl/transparent_hash.hpp>
 #include <userver/utils/str_icase.hpp>
+#include <userver/utils/string_literal.hpp>
 
 USERVER_NAMESPACE_BEGIN
 
@@ -77,7 +78,7 @@ struct TransactionOptions {
 constexpr inline bool operator==(TransactionOptions lhs, TransactionOptions rhs) {
     return lhs.isolation_level == rhs.isolation_level && lhs.mode == rhs.mode;
 }
-std::string_view BeginStatement(TransactionOptions);
+USERVER_NAMESPACE::utils::StringLiteral BeginStatement(TransactionOptions opts) noexcept;
 
 /// A structure to control timeouts for PosrgreSQL queries
 ///
