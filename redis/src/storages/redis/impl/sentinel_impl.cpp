@@ -317,7 +317,8 @@ void SentinelImpl::AsyncCommand(const SentinelCommand& scommand, size_t prev_ins
                     command->control.max_retries = retries_left;
 
                     auto new_command = PrepareCommand(
-                        std::move(ccommand->args),
+                        // Cloning as this callback `command_check_errors` may run multiple times in `AsyncCommand()`
+                        ccommand->args.Clone(),
                         [command](const CommandPtr& cmd, ReplyPtr reply) {
                             if (command->callback) command->callback(cmd, std::move(reply));
                         },
